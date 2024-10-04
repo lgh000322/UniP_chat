@@ -34,6 +34,8 @@ public class ChatLogController {
                                                   @DestinationVariable UUID roomId) {
         headerAccessor.getSessionAttributes().put("username", chatMessage.getSender());
         headerAccessor.getSessionAttributes().put("roomId", roomId);
+
+
         return ResponseEntity.ok().body(ResponseDto.of("메세지 전송 성공", chatMessage));
     }
 

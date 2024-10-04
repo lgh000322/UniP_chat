@@ -39,4 +39,4 @@ out/
 Dockerfile
 compose.yml
 init.sql
-./mysql_data/
+/mysql_data/
