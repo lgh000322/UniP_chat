@@ -10,6 +10,8 @@ import org.springframework.messaging.simp.stomp.StompHeaderAccessor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import java.util.UUID;
+
 @Slf4j
 @RequiredArgsConstructor
 @Component
@@ -20,14 +22,16 @@ public class WebSocketEventListener {
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         StompHeaderAccessor stompHeaderAccessor = StompHeaderAccessor.wrap(event.getMessage());
         String username = (String) stompHeaderAccessor.getSessionAttributes().get("username");
+        UUID roomId = (UUID) stompHeaderAccessor.getSessionAttributes().get("roomId");
         if (username != null) {
             log.info("User Disconnected: {}", username);
             ChatMessage chatMessage = ChatMessage.builder()
                     .type(MessageType.LEAVE)
                     .sender(username)
+                    .roomId(roomId)
                     .build();
 
-            messageTemplate.convertAndSend("/topic/public", chatMessage);
+            messageTemplate.convertAndSend("/topic/public/"+roomId, chatMessage);
         }
     }
 }

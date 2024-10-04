@@ -17,19 +17,11 @@ public class CustomMemberService {
 
     private final MemberRepository memberRepository;
 
-    public MemberDto loadUserByUsername(String username) {
+    public Member loadUserByUsername(String username) {
         Member member = memberRepository.findByUsername(username)
                 .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_FOUND));
 
-        return MemberDto.builder()
-                .id(member.getId())
-                .username(member.getUsername())
-                .auth(member.isAuth())
-                .role(String.valueOf(member.getRole()))
-                .profile_image(member.getProfile_image())
-                .name(member.getName())
-                .status(member.getStatus())
-                .build();
+        return member;
     }
 
 }

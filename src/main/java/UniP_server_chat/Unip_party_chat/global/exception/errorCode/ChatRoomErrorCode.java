@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ChatRoomErrorCode implements ErrorCode {
     //Todo: 추가해야됨
-    EX(HttpStatus.BAD_REQUEST, "예시텍스트");
+    CHAT_ROOM_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅방을 찾을 수 없습니다.");
 
     private HttpStatus httpStatus;
     private String message;

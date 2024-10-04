@@ -13,7 +13,6 @@ import java.util.UUID;
 @AllArgsConstructor
 @Entity
 public class ChatRoom {
-
     @Id
     @GeneratedValue(generator = "UUID")
     @GenericGenerator(name = "UUID", strategy = "org.hibernate.id.UUIDGenerator")
