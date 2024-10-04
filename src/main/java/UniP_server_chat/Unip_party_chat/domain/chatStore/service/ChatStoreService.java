@@ -7,6 +7,7 @@ import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberServic
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;

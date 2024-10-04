@@ -38,3 +38,5 @@ out/
 .vscode/
 Dockerfile
 compose.yml
+init.sql
+./mysql_data/

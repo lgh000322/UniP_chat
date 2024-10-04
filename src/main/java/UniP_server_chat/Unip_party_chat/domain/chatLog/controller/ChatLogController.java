@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.domain.chatLog.controller;
 
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessage;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.service.MessageProducer;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,11 +18,12 @@ import java.util.UUID;
 @RequiredArgsConstructor
 public class ChatLogController {
 
+    private final MessageProducer messageProducer;
     @MessageMapping("/chat/send/{roomId}")
     @SendTo("/topic/room/{roomId}")
     public ResponseEntity<ResponseDto<?>> sendMessage(@DestinationVariable UUID roomId,
                                                       @Payload ChatMessage chatMessage) {
-        //TODO: RabbitMQ 추가해야함
+        messageProducer.sendMessage(roomId, chatMessage); // RabbitMQ에 메시지 전송
         return ResponseEntity.ok().body(ResponseDto.of("메세지 전송 성공", chatMessage));
     }
 

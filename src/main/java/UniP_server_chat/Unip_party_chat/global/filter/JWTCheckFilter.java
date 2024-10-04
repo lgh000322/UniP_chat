@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.global.filter;
 
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -21,6 +22,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getAccessToken(request);
+
+        if (accessToken == null) {
+            throw new JwtException("토큰을 받지 못했습니다.");
+        }
+
         //accessToken 유효성 검사
         jwtUtil.validateToken(accessToken);
 
