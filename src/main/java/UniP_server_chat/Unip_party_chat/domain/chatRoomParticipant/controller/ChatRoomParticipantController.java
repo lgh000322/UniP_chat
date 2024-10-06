@@ -4,6 +4,8 @@ import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.dto.ChatRoomRequestDto;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.service.ChatRoomParticipantService;
+import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
+import UniP_server_chat.Unip_party_chat.domain.chatStore.service.ChatStoreService;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
@@ -14,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -25,9 +26,11 @@ public class ChatRoomParticipantController {
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final CustomMemberService customMemberService;
     private final ChatRoomService chatRoomService;
+    private final ChatStoreService chatStoreService;
 
     /**
      * 채팅방에 사용자 초대
+     *
      * @param chatRoomRequestDto
      * @return
      */
@@ -39,7 +42,10 @@ public class ChatRoomParticipantController {
 
         ChatRoom chatRoom = chatRoomService.findById(chatRoomRequestDto.getRoomId());
 
-        chatRoomParticipantService.makeChatRoomParticipants(members, chatRoom);
+        for (Member member : members) {
+            chatStoreService.createOrUseChatStore(member);
+            chatRoomParticipantService.makeChatRoomParticipants(members, chatRoom, false);
+        }
 
         return ResponseEntity.ok().body(ResponseDto.of("회원 추가 성공", null));
     }

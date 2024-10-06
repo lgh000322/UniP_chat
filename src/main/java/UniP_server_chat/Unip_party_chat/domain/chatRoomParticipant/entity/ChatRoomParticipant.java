@@ -1,7 +1,7 @@
 package UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity;
 
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
-import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
+import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -21,6 +21,6 @@ public class ChatRoomParticipant {
     private ChatRoom chatRoom;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "member_id")
-    private Member member;
+    @JoinColumn(name = "chat_store_id")
+    private ChatStore chatStore;
 }

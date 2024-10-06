@@ -13,7 +13,7 @@ public class ExceptionManager {
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<ResponseDto<?>> customExceptionHandler(CustomException e) {
         ErrorCode errorCode = e.getErrorCode();
-        ResponseDto<?> response = ResponseDto.fail(errorCode.getHttpStatus().value(), errorCode.getMessage() + " " + e.getMessage());
+        ResponseDto<?> response = ResponseDto.fail(errorCode.getHttpStatus().value(), errorCode.getMessage());
         return ResponseEntity.status(errorCode.getHttpStatus()).body(response);
     }
 }

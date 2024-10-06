@@ -37,4 +37,20 @@ public class ChatStoreService {
         return findChatStoreOptional.get();
     }
 
+    @Transactional
+    public ChatStore createOrUseChatStore(Member member) {
+        Optional<ChatStore> findChatStoreOptional = chatStoreRepository.findByMember(member);
+
+        if (findChatStoreOptional.isEmpty()) {
+            ChatStore chatStore = ChatStore.builder()
+                    .member(member)
+                    .build();
+
+            chatStoreRepository.save(chatStore);
+            return chatStore;
+        }
+
+        return findChatStoreOptional.get();
+    }
+
 }

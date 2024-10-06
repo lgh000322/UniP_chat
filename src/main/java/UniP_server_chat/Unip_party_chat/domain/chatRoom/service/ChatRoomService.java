@@ -31,11 +31,13 @@ public class ChatRoomService {
     @Transactional
     public List<ChatRoomsDto> getChatRooms() {
         ChatStore chatStore = chatStoreService.createOrUseChatStore();
-        return chatRoomRepository.findAllChatRoomsByChatStore(chatStore);
+
+        return chatRoomRepository.findAllChatRoomsByChatStore(chatStore)
+                .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
     }
 
     @Transactional
-    public void makeChatRoom(MakeChatRooms makeChatRooms) {
+    public void makeChatRoomInit(MakeChatRooms makeChatRooms) {
         ChatStore chatStore = chatStoreService.createOrUseChatStore();
 
         ChatRoom chatRoom = ChatRoom.builder()
@@ -49,7 +51,8 @@ public class ChatRoomService {
                 .map(username -> customMemberService.loadUserByUsername(username))
                 .collect(Collectors.toList());
 
-        chatRoomParticipantService.makeChatRoomParticipants(members, savedChatRoom);
+
+        chatRoomParticipantService.makeChatRoomParticipants(members, savedChatRoom,true);
     }
 
     public ChatRoom findById(UUID roomId) {

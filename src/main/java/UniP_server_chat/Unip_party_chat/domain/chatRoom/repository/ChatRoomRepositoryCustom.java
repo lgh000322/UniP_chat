@@ -4,7 +4,8 @@ import UniP_server_chat.Unip_party_chat.domain.chatRoom.dto.ChatRoomsDto;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 
 import java.util.List;
+import java.util.Optional;
 
 public interface ChatRoomRepositoryCustom {
-    List<ChatRoomsDto> findAllChatRoomsByChatStore(ChatStore chatStore);
+    Optional<List<ChatRoomsDto>> findAllChatRoomsByChatStore(ChatStore chatStore);
 }
