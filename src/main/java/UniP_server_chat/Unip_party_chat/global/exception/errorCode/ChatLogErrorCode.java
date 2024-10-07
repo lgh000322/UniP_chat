@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum ChatLogErrorCode implements ErrorCode {
     //TODO: 추가해야됨
+    CHAT_LOG_NOT_FOUND(HttpStatus.NOT_FOUND, "채팅 로그를 찾을 수 없습니다."),
     EX(HttpStatus.BAD_REQUEST, "예시 텍스트");
 
     private HttpStatus httpStatus;
