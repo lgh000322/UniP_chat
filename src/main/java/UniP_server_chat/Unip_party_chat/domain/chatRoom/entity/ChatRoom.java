@@ -19,9 +19,5 @@ public class ChatRoom {
     @Column(updatable = false, nullable = false)
     private UUID id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "chat_store_id")
-    private ChatStore chatStore;
-
     private String title;
 }

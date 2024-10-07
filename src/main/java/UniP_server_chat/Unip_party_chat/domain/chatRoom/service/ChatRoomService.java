@@ -38,10 +38,7 @@ public class ChatRoomService {
 
     @Transactional
     public void makeChatRoomInit(MakeChatRooms makeChatRooms) {
-        ChatStore chatStore = chatStoreService.createOrUseChatStore();
-
         ChatRoom chatRoom = ChatRoom.builder()
-                .chatStore(chatStore)
                 .title(makeChatRooms.getTitle())
                 .build();
 

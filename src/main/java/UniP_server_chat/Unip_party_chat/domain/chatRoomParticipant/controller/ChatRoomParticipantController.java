@@ -26,7 +26,6 @@ public class ChatRoomParticipantController {
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final CustomMemberService customMemberService;
     private final ChatRoomService chatRoomService;
-    private final ChatStoreService chatStoreService;
 
     /**
      * 채팅방에 사용자 초대
@@ -41,12 +40,7 @@ public class ChatRoomParticipantController {
                 .collect(Collectors.toList());
 
         ChatRoom chatRoom = chatRoomService.findById(chatRoomRequestDto.getRoomId());
-
-        for (Member member : members) {
-            chatStoreService.createOrUseChatStore(member);
-            chatRoomParticipantService.makeChatRoomParticipants(members, chatRoom, false);
-        }
-
+        chatRoomParticipantService.makeChatRoomParticipants(members, chatRoom, false);
         return ResponseEntity.ok().body(ResponseDto.of("회원 추가 성공", null));
     }
 }
