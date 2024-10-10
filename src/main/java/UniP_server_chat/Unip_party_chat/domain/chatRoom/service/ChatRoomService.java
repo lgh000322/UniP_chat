@@ -12,6 +12,7 @@ import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberServic
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatRoomErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -50,6 +51,11 @@ public class ChatRoomService {
 
 
         chatRoomParticipantService.makeChatRoomParticipants(members, savedChatRoom,true);
+    }
+
+    @Transactional
+    public void deleteById(UUID roomId) {
+        chatRoomRepository.deleteById(roomId);
     }
 
     public ChatRoom findById(UUID roomId) {

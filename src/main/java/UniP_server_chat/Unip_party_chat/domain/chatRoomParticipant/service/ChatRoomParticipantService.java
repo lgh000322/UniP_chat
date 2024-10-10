@@ -1,16 +1,22 @@
 package UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.service;
 
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
+import UniP_server_chat.Unip_party_chat.domain.chatRoom.repository.ChatRoomRepository;
+import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
+import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.dto.ChatRoomRequestDto;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.ChatRoomParticipant;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.repository.ChatRoomParticipantRepository;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.service.ChatStoreService;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
+import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
+import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatRoomParticipantErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @Transactional
@@ -18,6 +24,7 @@ import java.util.List;
 public class ChatRoomParticipantService {
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final ChatStoreService chatStoreService;
+    private final ChatRoomRepository chatRoomRepository;
 
     @Transactional
     public void makeChatRoomParticipants(List<Member> members, ChatRoom chatRoom, boolean isFirst) {
@@ -26,6 +33,33 @@ public class ChatRoomParticipantService {
         }
 
         members.forEach(member -> addParticipant(chatRoom, member));
+    }
+
+    @Transactional
+    public void deleteChatRoomParticipant(Member member, UUID roomId) {
+        // 채팅방에 현재 참여하고 있는 참여자의 수를 가져온다.
+        Long counts = getChatRoomParticipantCounts(roomId);
+
+        // 만약 채팅방에 참여하고 있는 인원이 1명이면 채팅방과 채팅인원 둘다 제거한다.
+        deleteChatRoomParticipant(member, roomId, counts);
+    }
+
+    private void deleteChatRoomParticipant(Member member, UUID roomId, Long counts) {
+        chatRoomParticipantRepository.deleteChatRoomParticipantByRoomIdAndMember(roomId, member);
+
+        if (counts == 1) {
+            chatRoomRepository.deleteById(roomId);
+        }
+    }
+
+    private Long getChatRoomParticipantCounts(UUID roomId) {
+        Long counts = chatRoomParticipantRepository.getCountsAtSpecificChatRoom(roomId);
+
+        if (counts == null) {
+            throw new CustomException(ChatRoomParticipantErrorCode.CANT_DELETE);
+        }
+
+        return counts;
     }
 
     private void addParticipant(ChatRoom chatRoom, Member member) {

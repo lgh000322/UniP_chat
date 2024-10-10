@@ -10,7 +10,7 @@ import org.springframework.http.HttpStatus;
 @NoArgsConstructor
 public enum ChatRoomParticipantErrorCode implements ErrorCode {
     //Todo: 추가해야 됨
-    EX(HttpStatus.BAD_REQUEST, "예시 텍스트");
+    CANT_DELETE(HttpStatus.BAD_REQUEST,"해당 채팅방은 제거할 수 없습니다.");
 
     private HttpStatus httpStatus;
     private String message;
