@@ -9,5 +9,7 @@ import java.util.UUID;
 
 public interface ChatLogRepositoryCustom {
 
-    Optional<List<ChatLogDto>> findById(UUID roomId, Pageable pageable);
+    Optional<List<ChatLogDto>> findById(UUID roomId, Pageable pageable,Long startChatLogId);
+
+    Long findMaxIdByRoomId(UUID roomId);
 }

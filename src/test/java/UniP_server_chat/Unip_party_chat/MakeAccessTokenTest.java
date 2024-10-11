@@ -18,7 +18,7 @@ public class MakeAccessTokenTest {
 
     @Test
     public void getAccessToken() throws Exception{
-        Member member = memberRepository.findById(1L).orElseThrow();
+        Member member = memberRepository.findById(3L).orElseThrow();
         String accessJwt = jwtUtil.createAccessJwt(member.getUsername(), member.getRole().toString(), null, false);
         System.out.println(accessJwt);
     }

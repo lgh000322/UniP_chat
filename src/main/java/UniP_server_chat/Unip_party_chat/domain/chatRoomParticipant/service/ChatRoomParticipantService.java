@@ -1,9 +1,8 @@
 package UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.service;
 
+import UniP_server_chat.Unip_party_chat.domain.chatLog.repository.ChatLogRepository;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.repository.ChatRoomRepository;
-import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
-import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.dto.ChatRoomRequestDto;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.ChatRoomParticipant;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.repository.ChatRoomParticipantRepository;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
@@ -25,6 +24,7 @@ public class ChatRoomParticipantService {
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final ChatStoreService chatStoreService;
     private final ChatRoomRepository chatRoomRepository;
+    private final ChatLogRepository chatLogRepository;
 
     @Transactional
     public void makeChatRoomParticipants(List<Member> members, ChatRoom chatRoom, boolean isFirst) {
@@ -67,11 +67,23 @@ public class ChatRoomParticipantService {
                 ? chatStoreService.createOrUseChatStore(member)
                 : chatStoreService.createOrUseChatStore();
 
+        Long maxId = setMaxId(chatLogRepository.findMaxIdByRoomId(chatRoom.getId()));
+
         ChatRoomParticipant chatRoomParticipant = ChatRoomParticipant.builder()
                 .chatStore(chatStore)
                 .chatRoom(chatRoom)
+                .startChatLogId(maxId)
                 .build();
 
         chatRoomParticipantRepository.save(chatRoomParticipant);
+    }
+
+    private static Long setMaxId(Long maxId) {
+        if (maxId == null) {
+            maxId = 1L;
+        } else {
+            maxId += 1;
+        }
+        return maxId;
     }
 }

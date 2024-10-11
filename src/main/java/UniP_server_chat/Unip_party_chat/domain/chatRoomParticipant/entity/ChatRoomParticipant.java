@@ -23,4 +23,7 @@ public class ChatRoomParticipant {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "chat_store_id")
     private ChatStore chatStore;
+
+    // 해당 사용자가 처음에 들어왔을 때의 마지막 채팅로그 번호 + 1
+    private Long startChatLogId;
 }

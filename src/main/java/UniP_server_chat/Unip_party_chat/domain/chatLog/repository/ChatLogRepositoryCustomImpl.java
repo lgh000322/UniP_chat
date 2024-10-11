@@ -23,7 +23,7 @@ public class ChatLogRepositoryCustomImpl implements ChatLogRepositoryCustom {
     }
 
     @Override
-    public Optional<List<ChatLogDto>> findById(UUID roomId, Pageable pageable) {
+    public Optional<List<ChatLogDto>> findById(UUID roomId, Pageable pageable,Long startChatLogId) {
         List<ChatLogDto> findChatLogs = queryFactory
                 .select(Projections.constructor(ChatLogDto.class,
                         chatLog.member.name,
@@ -33,8 +33,20 @@ public class ChatLogRepositoryCustomImpl implements ChatLogRepositoryCustom {
                 .where(chatLog.chatRoom.id.eq(roomId))
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
+                .where(chatLog.id.goe(startChatLogId))
                 .fetch();
 
         return Optional.ofNullable(findChatLogs);
+    }
+
+    @Override
+    public Long findMaxIdByRoomId(UUID roomId) {
+        Long maxId = queryFactory
+                .select(chatLog.id.max())
+                .from(chatLog)
+                .where(chatLog.chatRoom.id.eq(roomId))
+                .fetchOne();
+
+        return maxId;
     }
 }
