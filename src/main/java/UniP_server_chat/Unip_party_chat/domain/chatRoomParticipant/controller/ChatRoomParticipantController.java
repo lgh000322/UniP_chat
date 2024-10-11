@@ -9,6 +9,7 @@ import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +33,7 @@ public class ChatRoomParticipantController {
      * @return
      */
     @PostMapping("/chat/room/participant")
-    public ResponseEntity<ResponseDto<?>> addParticipantSpecificChatRoom(@RequestBody ChatRoomRequestDto chatRoomRequestDto) {
+    public ResponseEntity<ResponseDto<?>> addParticipantSpecificChatRoom(@RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
         List<Member> members = chatRoomRequestDto.getUsername().stream()
                 .map(username -> customMemberService.loadUserByUsername(username))
                 .collect(Collectors.toList());
@@ -46,7 +47,7 @@ public class ChatRoomParticipantController {
      * 채팅방 나가기
      */
     @DeleteMapping("/chat/room")
-    public ResponseEntity<ResponseDto<?>> deleteParticipantSpecificChatRoom(@RequestBody RemoveParticipant removeParticipant) {
+    public ResponseEntity<ResponseDto<?>> deleteParticipantSpecificChatRoom(@RequestBody @Valid RemoveParticipant removeParticipant) {
         Member member = customMemberService.loadUserByUsername(memberInfo.getUsername());
         chatRoomParticipantService.deleteChatRoomParticipant(member, removeParticipant.roomId());
         return ResponseEntity.ok().body(ResponseDto.of("채팅방을 정상적으로 나갔습니다.", null));

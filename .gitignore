@@ -40,3 +40,4 @@ Dockerfile
 compose.yml
 init.sql
 /mysql_data/
+/rabbitmq_data/

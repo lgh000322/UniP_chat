@@ -3,6 +3,7 @@ package UniP_server_chat.Unip_party_chat.domain.chatRoom.controller;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.dto.MakeChatRooms;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -28,7 +29,7 @@ public class ChatRoomController {
      * @return jwt 회원의 채팅방 생성응답
      */
     @PostMapping("/chat/rooms")
-    public ResponseEntity<ResponseDto<?>> makeChatRoom(@RequestBody MakeChatRooms makeChatRooms) {
+    public ResponseEntity<ResponseDto<?>> makeChatRoom(@RequestBody @Valid MakeChatRooms makeChatRooms) {
         chatRoomService.makeChatRoomInit(makeChatRooms);
         return ResponseEntity.ok().body(ResponseDto.of("채팅방 생성 성공", null));
     }
