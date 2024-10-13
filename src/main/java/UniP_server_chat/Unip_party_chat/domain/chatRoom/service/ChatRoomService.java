@@ -9,16 +9,18 @@ import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.service.ChatStoreService;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
+import UniP_server_chat.Unip_party_chat.domain.party.repository.PartyRepository;
+import UniP_server_chat.Unip_party_chat.domain.party.dto.PartyDto;
+import UniP_server_chat.Unip_party_chat.domain.party.entity.Party;
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatRoomErrorCode;
+import UniP_server_chat.Unip_party_chat.global.exception.errorCode.PartyErrorCode;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -29,6 +31,7 @@ public class ChatRoomService {
     private final ChatStoreService chatStoreService;
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final CustomMemberService customMemberService;
+    private final PartyRepository partyRepository;
     @Transactional
     public List<ChatRoomsDto> getChatRooms() {
         ChatStore chatStore = chatStoreService.createOrUseChatStore();
@@ -38,20 +41,21 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public void makeChatRoomInit(MakeChatRooms makeChatRooms) {
+    public void makeChatRoomInit(MakeChatRooms makeChatRooms,String username) {
+        PartyDto partyDto = makeChatRooms.getPartyDto();
+
+        Party party = partyRepository.findById(partyDto.partyId())
+                .orElseThrow(() -> new CustomException(PartyErrorCode.PARTY_NOT_FOUND));
+
         ChatRoom chatRoom = ChatRoom.builder()
-                .title(makeChatRooms.getTitle())
+                .title(partyDto.title())
+                .party(party)
                 .isDeleted(false)
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-
-        List<Member> members = makeChatRooms.getUsername().stream()
-                .map(username -> customMemberService.loadUserByUsername(username))
-                .collect(Collectors.toList());
-
-
-        chatRoomParticipantService.makeChatRoomParticipants(members, savedChatRoom,true);
+        Member member = customMemberService.loadUserByUsername(username);
+        chatRoomParticipantService.makeOneChatRoomParticipant(member, savedChatRoom);
     }
 
     public ChatRoom findById(UUID roomId) {

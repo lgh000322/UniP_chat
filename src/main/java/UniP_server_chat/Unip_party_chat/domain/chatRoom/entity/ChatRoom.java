@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.domain.chatRoom.entity;
 
 import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
+import UniP_server_chat.Unip_party_chat.domain.party.entity.Party;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.GenericGenerator;
@@ -22,6 +23,10 @@ public class ChatRoom {
     private String title;
 
     private boolean isDeleted;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "party_id")
+    private Party party;
 
     public void changeIsDeleted(boolean isDeleted) {
         this.isDeleted = isDeleted;

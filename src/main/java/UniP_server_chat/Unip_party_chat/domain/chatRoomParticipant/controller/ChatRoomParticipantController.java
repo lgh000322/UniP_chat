@@ -9,6 +9,9 @@ import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -20,6 +23,7 @@ import java.util.stream.Collectors;
 
 @RestController
 @RequiredArgsConstructor
+@Tag(name = "채팅 참여자", description = "채팅 참여자 관련 API")
 public class ChatRoomParticipantController {
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final CustomMemberService customMemberService;
@@ -33,6 +37,10 @@ public class ChatRoomParticipantController {
      * @return
      */
     @PostMapping("/chat/room/participant")
+    @Operation(summary = "채팅방 초대", description = "채팅방에 사용자들을 초대한다.")
+    @ApiResponse(responseCode = "200", description = "채팅방 초대 성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> addParticipantSpecificChatRoom(@RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
         List<Member> members = chatRoomRequestDto.getUsername().stream()
                 .map(username -> customMemberService.loadUserByUsername(username))
@@ -47,6 +55,10 @@ public class ChatRoomParticipantController {
      * 채팅방 나가기
      */
     @DeleteMapping("/chat/room")
+    @Operation(summary = "채팅방 나가기", description = "채팅방에서 나간다.")
+    @ApiResponse(responseCode = "200", description = "채팅방 나가기 성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> deleteParticipantSpecificChatRoom(@RequestBody @Valid RemoveParticipant removeParticipant) {
         Member member = customMemberService.loadUserByUsername(memberInfo.getUsername());
         chatRoomParticipantService.deleteChatRoomParticipant(member, removeParticipant.roomId());

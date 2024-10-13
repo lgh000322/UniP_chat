@@ -21,10 +21,20 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     private final MemberInfo memberInfo;
 
     @Override
+    protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
+        String requestURI = request.getRequestURI();
+
+        // Swagger UI 및 API Docs에 대한 요청을 필터에서 제외
+        if (requestURI.startsWith("/swagger-ui") ||
+                requestURI.startsWith("/v3/api-docs")) {
+            return true;
+        }
+        return super.shouldNotFilter(request);
+    }
+
+    @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getAccessToken(request);
-        HttpSession session = request.getSession(false);
-
 
         if (accessToken == null) {
             throw new JwtException("토큰을 받지 못했습니다.");

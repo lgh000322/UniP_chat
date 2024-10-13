@@ -37,6 +37,11 @@ public class ChatRoomParticipantService {
     }
 
     @Transactional
+    public void makeOneChatRoomParticipant(Member member, ChatRoom chatRoom) {
+        addParticipant(chatRoom, member);
+    }
+
+    @Transactional
     public void deleteChatRoomParticipant(Member member, UUID roomId) {
         // 채팅방에 현재 참여하고 있는 참여자의 수를 가져온다.
         Long counts = getChatRoomParticipantCounts(roomId);
