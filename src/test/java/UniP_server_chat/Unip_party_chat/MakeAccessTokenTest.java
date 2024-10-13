@@ -1,4 +1,3 @@
-/*
 package UniP_server_chat.Unip_party_chat;
 
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
@@ -26,4 +25,3 @@ public class MakeAccessTokenTest {
         Assertions.assertThat(true).isTrue();
     }
 }
-*/

@@ -5,11 +5,13 @@ import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
+@Slf4j
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
