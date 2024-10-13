@@ -33,7 +33,8 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
                 .from(chatRoom)
                 .leftJoin(chatRoomParticipant).on(chatRoomParticipant.chatRoom.id.eq(chatRoom.id))
                 .leftJoin(chatStore).on(chatRoomParticipant.chatStore.id.eq(chatStore.id))
-                .where(chatStore.id.eq(chatStoreParam.getId()))
+                .where(chatStore.id.eq(chatStoreParam.getId())
+                        .and(chatRoom.isDeleted.eq(false)))
                 .fetch();
 
         return Optional.ofNullable(result);

@@ -41,6 +41,7 @@ public class ChatRoomService {
     public void makeChatRoomInit(MakeChatRooms makeChatRooms) {
         ChatRoom chatRoom = ChatRoom.builder()
                 .title(makeChatRooms.getTitle())
+                .isDeleted(false)
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
@@ -51,11 +52,6 @@ public class ChatRoomService {
 
 
         chatRoomParticipantService.makeChatRoomParticipants(members, savedChatRoom,true);
-    }
-
-    @Transactional
-    public void deleteById(UUID roomId) {
-        chatRoomRepository.deleteById(roomId);
     }
 
     public ChatRoom findById(UUID roomId) {

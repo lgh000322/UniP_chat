@@ -9,6 +9,7 @@ import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.service.ChatStoreService;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
+import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatRoomErrorCode;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatRoomParticipantErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -48,7 +49,11 @@ public class ChatRoomParticipantService {
         chatRoomParticipantRepository.deleteChatRoomParticipantByRoomIdAndMember(roomId, member);
 
         if (counts == 1) {
-            chatRoomRepository.deleteById(roomId);
+            ChatRoom chatRoom = chatRoomRepository.findById(roomId)
+                    .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
+
+            chatRoom.changeIsDeleted(true);
+            chatRoomRepository.save(chatRoom);
         }
     }
 

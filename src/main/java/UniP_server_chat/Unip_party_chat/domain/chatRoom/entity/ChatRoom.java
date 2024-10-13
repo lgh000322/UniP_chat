@@ -20,4 +20,10 @@ public class ChatRoom {
     private UUID id;
 
     private String title;
+
+    private boolean isDeleted;
+
+    public void changeIsDeleted(boolean isDeleted) {
+        this.isDeleted = isDeleted;
+    }
 }

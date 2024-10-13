@@ -8,6 +8,7 @@ import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.QMember;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.LockModeType;
 
 import java.util.UUID;
 
@@ -31,6 +32,7 @@ public class ChatRoomParticipantRepositoryCustomImpl implements ChatRoomParticip
                 .from(chatRoomParticipant)
                 .leftJoin(chatRoom).on(chatRoomParticipant.chatRoom.id.eq(chatRoom.id))
                 .where(chatRoomParticipant.chatRoom.id.eq(roomId))
+                .setLockMode(LockModeType.PESSIMISTIC_WRITE)
                 .fetchOne();
     }
 
