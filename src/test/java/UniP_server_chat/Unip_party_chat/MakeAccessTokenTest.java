@@ -1,5 +1,6 @@
 package UniP_server_chat.Unip_party_chat;
 
+import UniP_server_chat.Unip_party_chat.domain.chatLog.controller.ChatLogController;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.repository.MemberRepository;
 import UniP_server_chat.Unip_party_chat.global.filter.JwtUtil;
@@ -16,6 +17,9 @@ public class MakeAccessTokenTest {
 
     @Autowired
     MemberRepository memberRepository;
+
+    @Autowired
+    ChatLogController chatLogController;
 
     @Test
     public void getAccessToken() throws Exception{

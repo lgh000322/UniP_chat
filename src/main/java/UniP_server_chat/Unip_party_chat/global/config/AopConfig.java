@@ -16,8 +16,8 @@ public class AopConfig {
         return new LogTraceAspect(logTrace);
     }
 
-    @Bean
+   /* @Bean
     public FilterResponseAspect filterResponseAspect(ObjectMapper objectMapper) {
         return new FilterResponseAspect(objectMapper);
-    }
+    }*/
 }

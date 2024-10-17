@@ -1,3 +1,4 @@
+/*
 package UniP_server_chat.Unip_party_chat.global.logTrace.aspect;
 
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
@@ -46,3 +47,4 @@ public class FilterResponseAspect {
         response.getWriter().write(jsonStr);
     }
 }
+*/
