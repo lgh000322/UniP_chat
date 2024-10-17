@@ -29,7 +29,7 @@ public class FilterConfig {
 
         registrationBean.setFilter(jwtCheckFilter);
         registrationBean.addUrlPatterns("/*");
-        registrationBean.setOrder(2);
+        registrationBean.setOrder(1);
 
         return registrationBean;
     }
