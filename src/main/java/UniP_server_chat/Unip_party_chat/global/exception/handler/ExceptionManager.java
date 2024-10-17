@@ -3,6 +3,7 @@ package UniP_server_chat.Unip_party_chat.global.exception.handler;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ErrorCode;
+import io.jsonwebtoken.JwtException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -36,4 +37,9 @@ public class ExceptionManager {
                 .body(ResponseDto.fail(HttpStatus.UNPROCESSABLE_ENTITY.value(), "유효성 검사에 실패하였습니다", errors));
     }
 
+    @ExceptionHandler(JwtException.class)
+    public ResponseEntity<ResponseDto<?>> jwtHandler(JwtException e) {
+        ResponseDto<?> response = ResponseDto.fail(HttpStatus.UNAUTHORIZED.value(), e.getMessage());
+        return ResponseEntity.status(response.getCode()).body(response);
+    }
 }
