@@ -1,5 +1,6 @@
 package UniP_server_chat.Unip_party_chat.global.filter;
 
+import UniP_server_chat.Unip_party_chat.global.filter.annotation.FilterResponse;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -33,6 +34,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     }
 
     @Override
+    @FilterResponse
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         String accessToken = getAccessToken(request);
 

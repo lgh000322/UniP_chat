@@ -12,7 +12,7 @@ import java.util.Map;
 
 @Configuration
 public class FilterConfig {
-    @Bean
+ /*   @Bean
     public FilterRegistrationBean<JWTResponseFilter> jwtResponseFilter(JWTResponseFilter jwtResponseFilter) {
         FilterRegistrationBean<JWTResponseFilter> registrationBean = new FilterRegistrationBean<>();
 
@@ -21,7 +21,7 @@ public class FilterConfig {
         registrationBean.setOrder(1);
 
         return registrationBean;
-    }
+    }*/
 
     @Bean
     public FilterRegistrationBean<JWTCheckFilter> jwtCheckFilter(JWTCheckFilter jwtCheckFilter) {

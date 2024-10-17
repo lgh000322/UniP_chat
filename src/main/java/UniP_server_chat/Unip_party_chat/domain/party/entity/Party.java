@@ -4,20 +4,17 @@ import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.PartyErrorCode;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@Entity
 @Getter
+@Setter
+@Entity
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 public class Party {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
@@ -58,4 +55,6 @@ public class Party {
         }
         peopleCount--;
     }
+
+
 }
