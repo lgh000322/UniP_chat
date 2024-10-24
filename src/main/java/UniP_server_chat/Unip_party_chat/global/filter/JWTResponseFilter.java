@@ -22,7 +22,6 @@ public class JWTResponseFilter extends OncePerRequestFilter {
 
     private final HandlerExceptionResolver handlerExceptionResolver;
 
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         try {
@@ -31,7 +30,7 @@ public class JWTResponseFilter extends OncePerRequestFilter {
             handlerExceptionResolver.resolveException(request, response, null, e);
         }
     }
-
+/*
     public void sendErrorResponse(HttpStatus status, HttpServletResponse response, Throwable ex) throws IOException {
         response.setStatus(status.value());
 
@@ -40,5 +39,5 @@ public class JWTResponseFilter extends OncePerRequestFilter {
         String jsonStr = objectMapper.writeValueAsString(ResponseDto.fail(status.value(), ex.getMessage()));
 
         response.getWriter().write(jsonStr);
-    }
+    }*/
 }

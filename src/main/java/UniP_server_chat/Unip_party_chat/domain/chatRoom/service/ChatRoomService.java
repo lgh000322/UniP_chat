@@ -12,13 +12,16 @@ import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberServic
 import UniP_server_chat.Unip_party_chat.domain.party.repository.PartyRepository;
 import UniP_server_chat.Unip_party_chat.domain.party.dto.PartyDto;
 import UniP_server_chat.Unip_party_chat.domain.party.entity.Party;
+import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatRoomErrorCode;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.PartyErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -58,8 +61,18 @@ public class ChatRoomService {
         chatRoomParticipantService.makeOneChatRoomParticipant(member, savedChatRoom);
     }
 
+    @Transactional
+    public void participateInPartyChat(Long partyId, String username) {
+        ChatRoom foundedChatRoom = chatRoomRepository.findChatRoomByPartyId(partyId)
+                .orElseThrow(() -> new CustomException(PartyErrorCode.PARTY_NOT_FOUND));
+
+        Member member = customMemberService.loadUserByUsername(username);
+        chatRoomParticipantService.makeOneChatRoomParticipant(member, foundedChatRoom);
+    }
+
     public ChatRoom findById(UUID roomId) {
         return chatRoomRepository.findById(roomId)
                 .orElseThrow(() -> new CustomException(ChatRoomErrorCode.CHAT_ROOM_NOT_FOUND));
     }
+
 }

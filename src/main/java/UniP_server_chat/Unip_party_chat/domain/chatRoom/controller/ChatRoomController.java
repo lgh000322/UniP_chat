@@ -47,7 +47,7 @@ public class ChatRoomController {
      * @return jwt 회원의 채팅방 생성응답
      */
     @PostMapping("/chat/rooms")
-    @Operation(summary = "채팅방 생성 및 참여", description = "초기 채팅방을 생성하거나 스스로 참여한다.")
+    @Operation(summary = "채팅방 생성", description = "초기 채팅방을 생성한다.")
     @ApiResponse(responseCode = "200", description = "초기 채팅방 생성 성공")
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 실패")
@@ -55,4 +55,5 @@ public class ChatRoomController {
         chatRoomService.makeChatRoomInit(makeChatRooms, memberInfo.getUsername());
         return ResponseEntity.ok().body(ResponseDto.of("채팅방 생성 성공", null));
     }
+
 }

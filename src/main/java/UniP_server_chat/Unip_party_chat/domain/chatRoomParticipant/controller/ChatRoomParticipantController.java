@@ -7,6 +7,7 @@ import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.dto.RemovePar
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.service.ChatRoomParticipantService;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
+import UniP_server_chat.Unip_party_chat.domain.party.dto.PartyDto;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -18,6 +19,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 
@@ -63,5 +65,18 @@ public class ChatRoomParticipantController {
         Member member = customMemberService.loadUserByUsername(memberInfo.getUsername());
         chatRoomParticipantService.deleteChatRoomParticipant(member, removeParticipant.roomId());
         return ResponseEntity.ok().body(ResponseDto.of("채팅방을 정상적으로 나갔습니다.", null));
+    }
+
+    /**
+     * 파티 아이디 기반 채팅방 입장
+     */
+    @PostMapping("/chat/room/{partyId}")
+    @Operation(summary = "파티참가와 동시에 채팅방 입장", description = "채팅방에 입장한다.")
+    @ApiResponse(responseCode = "200", description = "채팅방 입장 성공")
+    @ApiResponse(responseCode = "400", description = "잘못된 요청")
+    @ApiResponse(responseCode = "401", description = "인증 실패")
+    public ResponseEntity<ResponseDto<?>> enterPartyChat(@PathVariable(name = "partyId") Long partyId) {
+        chatRoomService.participateInPartyChat(partyId, memberInfo.getUsername());
+        return ResponseEntity.ok().body(ResponseDto.of("파티 채팅에 입장했습니다.", null));
     }
 }
