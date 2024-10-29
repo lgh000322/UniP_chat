@@ -25,7 +25,7 @@ public class MessageConsumer {
     private final List<ChatLog> chatLogs = new ArrayList<>();
     private static final int BATCH_SIZE = 100; // 배치 크기 설정
 
-    @RabbitListener(queues = "chat.queue")
+    @RabbitListener(queues = "chat.queue", concurrency = "5-10")
     public void receiveMessage(ChatMessage chatMessage) {
         ChatRoom chatRoom = chatRoomService.findById(chatMessage.getRoomId());
         Member member = customMemberService.loadUserByUsername(chatMessage.getSender());
@@ -36,19 +36,21 @@ public class MessageConsumer {
                 .content(chatMessage.getContent())
                 .build();
 
-        chatLogs.add(chatLog);
-
-        // 배치 크기에 도달하면 저장
-        if (chatLogs.size() >= BATCH_SIZE) {
-            saveChatLogs();
+        synchronized (chatLogs) {
+            chatLogs.add(chatLog);
+            if (chatLogs.size() >= BATCH_SIZE) {
+                saveChatLogs();
+            }
         }
     }
 
     // 남아있는 메시지 저장
     @Scheduled(fixedDelay = 1000) // 1초마다 남아있는 메시지 저장
     public void saveRemainingChatLogs() {
-        if (!chatLogs.isEmpty()) {
-            saveChatLogs();
+        synchronized (chatLogs) {
+            if (!chatLogs.isEmpty()) {
+                saveChatLogs();
+            }
         }
     }
 
@@ -57,5 +59,4 @@ public class MessageConsumer {
         chatLogRepository.saveAll(chatLogs); // bulk insert
         chatLogs.clear(); // 리스트 초기화
     }
-
 }
