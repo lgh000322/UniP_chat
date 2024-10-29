@@ -12,4 +12,5 @@ public interface ChatLogRepositoryCustom {
     Optional<List<ChatLogDto>> findById(UUID roomId, Pageable pageable,Long startChatLogId);
 
     Long findMaxIdByRoomId(UUID roomId);
+
 }

@@ -10,7 +10,7 @@ public class LogTrace {
     private static final String COMPLETE_PREFIX = "<--";
     private static final String EX_PREFIX = "<X-";
 
-    private ThreadLocal<TraceId> traceIdHolder = new ThreadLocal<>();
+    private final ThreadLocal<TraceId> traceIdHolder = new ThreadLocal<>();
 
     public TraceStatus begin(String message) {
         syncTraceId();

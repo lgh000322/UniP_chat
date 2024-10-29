@@ -3,8 +3,8 @@ package UniP_server_chat.Unip_party_chat.global.logTrace.material;
 import java.util.UUID;
 
 public class TraceId {
-    private String id;
-    private int level;
+    private final String id;
+    private final int level;
 
     public TraceId() {
         this.id = createId();

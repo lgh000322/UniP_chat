@@ -1,9 +1,9 @@
 package UniP_server_chat.Unip_party_chat.global.logTrace.material;
 
 public class TraceStatus {
-    private TraceId traceId;
-    private Long startTimeMs;
-    private String message;
+    private final TraceId traceId;
+    private final Long startTimeMs;
+    private final String message;
 
     public TraceStatus(TraceId traceId, Long startTimeMs, String message) {
         this.traceId = traceId;

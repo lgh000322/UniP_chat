@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 @Component
 public class MemberInfo {
 
-    private ThreadLocal<String> username = new ThreadLocal<>();
+    private final ThreadLocal<String> username = new ThreadLocal<>();
 
     public String getUsername() {
         return username.get();
