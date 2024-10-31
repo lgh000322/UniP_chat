@@ -30,6 +30,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
                 requestURI.startsWith("/v3/api-docs")) {
             return true;
         }
+
+        if (requestURI.startsWith("/health")) {
+            return true;
+        }
         return super.shouldNotFilter(request);
     }
 
