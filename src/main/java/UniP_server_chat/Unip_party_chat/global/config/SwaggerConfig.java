@@ -20,7 +20,7 @@ public class SwaggerConfig {
                 .components(new io.swagger.v3.oas.models.Components()
                         .addSecuritySchemes("access", new SecurityScheme()
                                 .in(SecurityScheme.In.HEADER)  // 헤더로 설정
-                                .name("Authorization: Bearer ")  // 헤더 이름 설정
+                                .name("Authorization:Bearer ")  // 헤더 이름 설정
                                 .type(SecurityScheme.Type.APIKEY)));  // scheme 없이 설정
     }
 }
