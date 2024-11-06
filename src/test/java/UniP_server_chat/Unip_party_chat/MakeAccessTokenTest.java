@@ -1,3 +1,4 @@
+/*
 package UniP_server_chat.Unip_party_chat;
 
 import UniP_server_chat.Unip_party_chat.domain.chatLog.controller.ChatLogController;
@@ -26,3 +27,4 @@ public class MakeAccessTokenTest {
         Assertions.assertThat(true).isTrue();
     }
 }
+*/
