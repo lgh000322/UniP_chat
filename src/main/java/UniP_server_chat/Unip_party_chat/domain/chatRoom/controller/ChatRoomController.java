@@ -44,7 +44,7 @@ public class ChatRoomController {
      * @param makeChatRooms 요청 데이터
      * @return jwt 회원의 채팅방 생성응답
      */
-    @PostMapping("/chat/rooms")
+    @PostMapping("/chat/room")
     @Operation(summary = "채팅방 생성", description = "초기 채팅방을 생성한다.")
     @ApiResponse(responseCode = "200", description = "초기 채팅방 생성 성공")
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
