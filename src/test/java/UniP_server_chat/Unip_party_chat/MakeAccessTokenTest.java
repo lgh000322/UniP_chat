@@ -1,4 +1,3 @@
-/*
 package UniP_server_chat.Unip_party_chat;
 
 import UniP_server_chat.Unip_party_chat.domain.chatLog.controller.ChatLogController;
@@ -24,9 +23,6 @@ public class MakeAccessTokenTest {
     @Test
     public void getAccessToken() throws Exception{
         Member member = memberRepository.findById(3L).orElseThrow();
-        String accessJwt = jwtUtil.createAccessJwt(member.getUsername(), member.getRole().toString(), null, false);
-        System.out.println(accessJwt);
         Assertions.assertThat(true).isTrue();
     }
 }
-*/
