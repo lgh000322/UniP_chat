@@ -62,8 +62,6 @@ jobs:
             mkdir -p builderDirectory
             cd builderDirectory
             docker compose down || true
-            rm -f compose.yml || true
-            echo "${{secrets.DOCKER_COMPOSE_CONTENT}}" > compose.yml
             docker image rm ${{steps.login-ecr.outputs.registry}}/chat/server:latest || true  
             docker-compose pull
             docker-compose up -d --build
