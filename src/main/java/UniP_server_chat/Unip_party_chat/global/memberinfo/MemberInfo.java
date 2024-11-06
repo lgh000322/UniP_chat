@@ -1,23 +1,24 @@
 package UniP_server_chat.Unip_party_chat.global.memberinfo;
 
 
+import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import org.springframework.stereotype.Component;
 
 @Component
 public class MemberInfo {
 
-    private final ThreadLocal<String> username = new ThreadLocal<>();
+    private final ThreadLocal<Member> threadLocalMember = new ThreadLocal<>();
 
-    public String getUsername() {
-        return username.get();
+    public Member getThreadLocalMember() {
+        return threadLocalMember.get();
     }
 
-    public void setUsername(String username) {
-        this.username.set(username);
+    public void setThreadLocalMember(Member member) {
+        threadLocalMember.set(member);
     }
 
     public void clear() {
-        username.remove();
+        threadLocalMember.remove();
     }
 
 }

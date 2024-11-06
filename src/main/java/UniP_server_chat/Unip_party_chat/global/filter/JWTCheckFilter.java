@@ -1,5 +1,6 @@
 package UniP_server_chat.Unip_party_chat.global.filter;
 
+import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.global.filter.annotation.FilterResponse;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
 import io.jsonwebtoken.JwtException;
@@ -20,6 +21,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
 
     private final JwtUtil jwtUtil;
     private final MemberInfo memberInfo;
+    public static final String AUTHORIZATION_HEADER = "Authorization";
 
     @Override
     protected boolean shouldNotFilter(HttpServletRequest request) throws ServletException {
@@ -40,7 +42,8 @@ public class JWTCheckFilter extends OncePerRequestFilter {
     @Override
 //    @FilterResponse
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        String accessToken = getAccessToken(request);
+        String authentication = request.getHeader(AUTHORIZATION_HEADER);
+        String accessToken = getAccessToken(authentication);
 
         if (accessToken == null) {
             throw new JwtException("토큰을 받지 못했습니다.");
@@ -50,11 +53,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         jwtUtil.validateToken(accessToken);
 
         try {
-            //accessToken에서 username을 가져온다.
-            String username = jwtUtil.getUsername(accessToken);
+            // accessToken에서 username을 가져온다.
+            Member member = jwtUtil.getMember(accessToken);
 
-            //threadlocal에 username을 저장한다.
-            memberInfo.setUsername(username);
+            //threadlocal에 username을 저장한다. => threadlocal에 member를 저장한다.
+            memberInfo.setThreadLocalMember(member);
 
             filterChain.doFilter(request, response);
         } finally {
@@ -62,7 +65,10 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         }
     }
 
-    private static String getAccessToken(HttpServletRequest request) {
-        return request.getHeader("access");
+    private static String getAccessToken(String authentication) {
+        if (authentication != null && authentication.startsWith("Bearer ")) {
+            return authentication.substring(7);
+        }
+        return null;
     }
 }

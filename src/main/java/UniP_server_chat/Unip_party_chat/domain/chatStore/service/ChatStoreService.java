@@ -18,11 +18,11 @@ import java.util.Optional;
 public class ChatStoreService {
 
     private final MemberInfo memberInfo;
-    private final CustomMemberService customMemberService;
     private final ChatStoreRepository chatStoreRepository;
+
     @Transactional
     public ChatStore createOrUseChatStore() {
-        Member member = customMemberService.loadUserByUsername(memberInfo.getUsername());
+        Member member = memberInfo.getThreadLocalMember();
         Optional<ChatStore> findChatStoreOptional = chatStoreRepository.findByMember(member);
 
         if (findChatStoreOptional.isEmpty()) {

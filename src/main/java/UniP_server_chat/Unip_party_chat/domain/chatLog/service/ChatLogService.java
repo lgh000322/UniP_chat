@@ -22,12 +22,11 @@ import java.util.UUID;
 public class ChatLogService {
 
     private final ChatLogRepository chatLogRepository;
-    private final CustomMemberService customMemberService;
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final MemberInfo memberInfo;
 
     public List<ChatLogDto> findById(UUID roomId, Pageable pageable) {
-        Member member = customMemberService.loadUserByUsername(memberInfo.getUsername());
+        Member member = memberInfo.getThreadLocalMember();
 
         Long startChatLogId = chatRoomParticipantRepository.findChatRoomParticipantByMemberId(member.getId());
 

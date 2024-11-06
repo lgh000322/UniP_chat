@@ -33,7 +33,6 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
     private final ChatStoreService chatStoreService;
     private final ChatRoomParticipantService chatRoomParticipantService;
-    private final CustomMemberService customMemberService;
     private final PartyRepository partyRepository;
     @Transactional
     public List<ChatRoomsDto> getChatRooms() {
@@ -44,7 +43,7 @@ public class ChatRoomService {
     }
 
     @Transactional
-    public void makeChatRoomInit(MakeChatRooms makeChatRooms,String username) {
+    public void makeChatRoomInit(MakeChatRooms makeChatRooms,Member member) {
         PartyDto partyDto = makeChatRooms.getPartyDto();
 
         Party party = partyRepository.findById(partyDto.partyId())
@@ -57,16 +56,14 @@ public class ChatRoomService {
                 .build();
 
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-        Member member = customMemberService.loadUserByUsername(username);
         chatRoomParticipantService.makeOneChatRoomParticipant(member, savedChatRoom);
     }
 
     @Transactional
-    public void participateInPartyChat(Long partyId, String username) {
+    public void participateInPartyChat(Long partyId, Member member) {
         ChatRoom foundedChatRoom = chatRoomRepository.findChatRoomByPartyId(partyId)
                 .orElseThrow(() -> new CustomException(PartyErrorCode.PARTY_NOT_FOUND));
 
-        Member member = customMemberService.loadUserByUsername(username);
         chatRoomParticipantService.makeOneChatRoomParticipant(member, foundedChatRoom);
     }
 

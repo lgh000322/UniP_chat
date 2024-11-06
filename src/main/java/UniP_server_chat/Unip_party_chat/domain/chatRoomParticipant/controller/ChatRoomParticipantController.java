@@ -62,7 +62,7 @@ public class ChatRoomParticipantController {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> deleteParticipantSpecificChatRoom(@RequestBody @Valid RemoveParticipant removeParticipant) {
-        Member member = customMemberService.loadUserByUsername(memberInfo.getUsername());
+        Member member = memberInfo.getThreadLocalMember();
         chatRoomParticipantService.deleteChatRoomParticipant(member, removeParticipant.roomId());
         return ResponseEntity.ok().body(ResponseDto.of("채팅방을 정상적으로 나갔습니다.", null));
     }
@@ -76,7 +76,7 @@ public class ChatRoomParticipantController {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> enterPartyChat(@PathVariable(name = "partyId") Long partyId) {
-        chatRoomService.participateInPartyChat(partyId, memberInfo.getUsername());
+        chatRoomService.participateInPartyChat(partyId, memberInfo.getThreadLocalMember());
         return ResponseEntity.ok().body(ResponseDto.of("파티 채팅에 입장했습니다.", null));
     }
 }

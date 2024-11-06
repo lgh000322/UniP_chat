@@ -1,125 +1,102 @@
 package UniP_server_chat.Unip_party_chat.global.filter;
 
+import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
+import UniP_server_chat.Unip_party_chat.domain.member.repository.MemberRepository;
+import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
+import UniP_server_chat.Unip_party_chat.global.exception.errorCode.MemberErrorCode;
+import UniP_server_chat.Unip_party_chat.global.exception.errorCode.OAuthErrorCode;
+import UniP_server_chat.Unip_party_chat.global.jwt.info.JwtProperties;
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import javax.crypto.SecretKey;
-import javax.crypto.spec.SecretKeySpec;
-import java.nio.charset.StandardCharsets;
+import java.security.Key;
 import java.util.Date;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
+@RequiredArgsConstructor
 public class JwtUtil {
-    private final SecretKey secretKey;
-    private final long RefreshTokenRemiteTime = 1000L * 60 * 60 * 24; // 1일
-    private final long AccessTokenRemiteTime = 60 * 60 * 1000L; // 1시간
+    private Key key;
 
-    public JwtUtil(@Value("${spring.jwt.secret}") String secret) {
-        this.secretKey = Keys.hmacShaKeyFor(secret.getBytes(StandardCharsets.UTF_8)); // 시크릿 키 생성
+    private static final String MEMBER_ROLE = "role";
+    private final JwtProperties jwtProperties;
+    private final MemberRepository memberRepository;
+
+    @PostConstruct
+    public void setKey() {
+        byte[] keyBytes = Decoders.BASE64.decode(jwtProperties.secretKey());
+        this.key = Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // 토큰 유효성 검사
-    public void validateToken(String token) {
+    /**
+     * AccessToken 생성 메소드
+     */
+    public String createAccessToken(Long memberId, List<String> roles) {
+        long now = (new Date()).getTime();
+
+        // Access token 유효 기간 설정
+        Date accessValidity = new Date(now + jwtProperties.accessTokenExpiration());
+
+        return Jwts.builder()
+                .setIssuedAt(new Date(now))
+                .setExpiration(accessValidity)
+                .setIssuer(jwtProperties.issuer())
+                .setSubject(memberId.toString())
+                .addClaims(Map.of(MEMBER_ROLE, roles))
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+    /**
+     * RefreshToken 생성
+     */
+    public String createRefreshToken(Long memberId, List<String> roles) {
+        long now = (new Date()).getTime();
+
+        // Refresh token 유효 기간 설정
+        Date refreshValidity = new Date(now + jwtProperties.refreshTokenExpiration());
+
+        // Refresh token 생성
+        return Jwts.builder()
+                .setIssuedAt(new Date(now))
+                .setExpiration(refreshValidity)
+                .setIssuer(jwtProperties.issuer())
+                .setSubject(memberId.toString())
+                .addClaims(Map.of(MEMBER_ROLE, roles))
+                .setHeaderParam(Header.TYPE, Header.JWT_TYPE)
+                .signWith(key, SignatureAlgorithm.HS512)
+                .compact();
+    }
+
+
+    public void validateToken(final String token) {
         try {
-            Jwts.parser() // parserBuilder() 대신 parser() 사용
-                    .setSigningKey(secretKey)
+            log.info("now date: {}", new Date());
+            Jws<Claims> claims = Jwts.parserBuilder()
+                    .setSigningKey(key)
                     .build()
                     .parseClaimsJws(token);
-        } catch (UnsupportedJwtException | MalformedJwtException exception) {
-            log.error("JWT is not valid");
-            throw new JwtException("유효하지 않은 토큰");
-        } catch (SignatureException exception) {
-            log.error("JWT signature validation fails");
-            throw new JwtException("시그니처가 유효하지 않은 토큰");
-        } catch (ExpiredJwtException exception) {
-            log.error("JWT expired");
-            throw new JwtException("만료된 토큰");
-        } catch (IllegalArgumentException exception) {
-            log.error("JWT is null or empty or only whitespace");
-            throw new JwtException("값이 들어있지 않은 토큰");
-        } catch (Exception exception) {
-            log.error("JWT validation fails", exception);
+            claims.getBody().getExpiration();
+        } catch (Exception e) {
+            throw new CustomException(OAuthErrorCode.TOKEN_VALID_FAIL);
         }
     }
 
-    // 유저네임 가져오기
-    public String getUsername(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("username", String.class);
-    }
+    public Member getMember(String token) {
+        Long id = Long.parseLong(Jwts.parserBuilder().setSigningKey(key).build()
+                .parseClaimsJws(token).getBody().getSubject());
 
-    // 권한 가져오기
-    public String getRole(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("role", String.class);
-    }
+        log.info("in getMember() socialId: {}", id);
 
-    // 토큰 만료 여부 확인
-    public Boolean isExpired(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .before(new Date());
-    }
-
-    // 카테고리 가져오기
-    public String getCategory(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("category", String.class);
-    }
-
-    // 인증 여부 가져오기
-    public boolean getAuth(String token) {
-        return Jwts.parser()
-                .setSigningKey(secretKey)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("auth", Boolean.class);
-    }
-
-    // Access JWT 생성
-    public String createAccessJwt(String username, String role, String category, boolean auth) {
-        return Jwts.builder()
-                .claim("category", category)
-                .claim("username", username)
-                .claim("role", role)
-                .claim("auth", auth)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + AccessTokenRemiteTime))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact();
-    }
-
-    // Refresh JWT 생성
-    public String createRefreshJwt(String username, String role, String category, boolean auth) {
-        return Jwts.builder()
-                .claim("category", category)
-                .claim("username", username)
-                .claim("role", role)
-                .claim("auth", auth)
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + RefreshTokenRemiteTime))
-                .signWith(secretKey, SignatureAlgorithm.HS256)
-                .compact();
+        return memberRepository.findById(id)
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_NOT_FOUND));
     }
 }

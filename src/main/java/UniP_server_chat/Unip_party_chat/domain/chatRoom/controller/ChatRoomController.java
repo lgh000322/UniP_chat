@@ -1,6 +1,5 @@
 package UniP_server_chat.Unip_party_chat.domain.chatRoom.controller;
 
-import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogDto;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.dto.ChatRoomsDto;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.dto.MakeChatRooms;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
@@ -25,7 +24,6 @@ public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
     private final MemberInfo memberInfo;
-
     /**
      * 전체 채팅방을 조회
      * @return jwt 회원의 전체채팅방 조회 응답
@@ -52,7 +50,7 @@ public class ChatRoomController {
     @ApiResponse(responseCode = "400", description = "잘못된 요청")
     @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> makeChatRoom(@RequestBody @Valid MakeChatRooms makeChatRooms) {
-        chatRoomService.makeChatRoomInit(makeChatRooms, memberInfo.getUsername());
+        chatRoomService.makeChatRoomInit(makeChatRooms, memberInfo.getThreadLocalMember());
         return ResponseEntity.ok().body(ResponseDto.of("채팅방 생성 성공", null));
     }
 
