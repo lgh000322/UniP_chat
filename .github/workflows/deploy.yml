@@ -3,7 +3,7 @@ name: Github Action 도커 배포
 on:
   push:
     branches:
-      - main
+      - master
 
 jobs:
   My-Deploy-Job:
