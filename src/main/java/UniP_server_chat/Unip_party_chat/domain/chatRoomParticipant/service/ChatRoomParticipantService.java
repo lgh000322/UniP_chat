@@ -77,6 +77,8 @@ public class ChatRoomParticipantService {
                 ? chatStoreService.createOrUseChatStore(member)
                 : chatStoreService.createOrUseChatStore();
 
+
+        // 채팅방에 참여할 때 화면에 채팅기록을 출력할 기준이 될 필드
         Long maxId = setMaxId(chatLogRepository.findMaxIdByRoomId(chatRoom.getId()));
 
         ChatRoomParticipant chatRoomParticipant = ChatRoomParticipant.builder()
