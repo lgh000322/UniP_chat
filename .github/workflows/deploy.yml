@@ -63,5 +63,5 @@ jobs:
             cd builderDirectory
             docker compose down || true
             docker image rm ${{steps.login-ecr.outputs.registry}}/chat/server:latest || true  
-            docker-compose pull
-            docker-compose up -d --build
+            docker compose pull
+            docker compose up -d --build
