@@ -9,6 +9,7 @@ import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,13 +18,10 @@ import static UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.QChatRoom.
 import static UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.QChatRoomParticipant.*;
 import static UniP_server_chat.Unip_party_chat.domain.chatStore.entity.QChatStore.chatStore;
 
+@RequiredArgsConstructor
 public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public ChatRoomRepositoryCustomImpl(EntityManager em) {
-        queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public Optional<List<ChatRoomsDto>> findAllChatRoomsByChatStore(ChatStore chatStoreParam) {

@@ -9,6 +9,7 @@ import UniP_server_chat.Unip_party_chat.domain.member.entity.QMember;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
+import lombok.RequiredArgsConstructor;
 
 import java.util.UUID;
 
@@ -17,13 +18,10 @@ import static UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity
 import static UniP_server_chat.Unip_party_chat.domain.chatStore.entity.QChatStore.chatStore;
 import static UniP_server_chat.Unip_party_chat.domain.member.entity.QMember.member;
 
+@RequiredArgsConstructor
 public class ChatRoomParticipantRepositoryCustomImpl implements ChatRoomParticipantRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public ChatRoomParticipantRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public Long getCountsAtSpecificChatRoom(UUID roomId) {

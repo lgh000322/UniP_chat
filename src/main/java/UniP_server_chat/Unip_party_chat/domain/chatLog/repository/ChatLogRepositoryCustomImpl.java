@@ -6,6 +6,7 @@ import UniP_server_chat.Unip_party_chat.domain.chatLog.entity.QChatLog;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 
 import java.util.List;
@@ -14,13 +15,10 @@ import java.util.UUID;
 
 import static UniP_server_chat.Unip_party_chat.domain.chatLog.entity.QChatLog.*;
 
+@RequiredArgsConstructor
 public class ChatLogRepositoryCustomImpl implements ChatLogRepositoryCustom {
 
     private final JPAQueryFactory queryFactory;
-
-    public ChatLogRepositoryCustomImpl(EntityManager em) {
-        this.queryFactory = new JPAQueryFactory(em);
-    }
 
     @Override
     public Optional<List<ChatLogDto>> findById(UUID roomId, Pageable pageable,Long startChatLogId) {
