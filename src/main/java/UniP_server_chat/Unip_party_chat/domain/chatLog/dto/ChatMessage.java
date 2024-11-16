@@ -3,6 +3,7 @@ package UniP_server_chat.Unip_party_chat.domain.chatLog.dto;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.*;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Getter
@@ -22,6 +23,9 @@ public class ChatMessage {
     @Schema(description = "보내는 메시지의 타입", example = "MessageType.CHAT")
     private MessageType type;
 
-    @Schema(description = "채팅방의 이름",example = "12dfsbauifbew-12i3jikbskldf-asidfkhjbawe")
+    @Schema(description = "채팅방의 이름", example = "12dfsbauifbew-12i3jikbskldf-asidfkhjbawe")
     private UUID roomId;
+
+    @Schema(description = "보낸 시간")
+    private LocalDateTime sendTime = LocalDateTime.now();
 }

@@ -11,7 +11,6 @@ import UniP_server_chat.Unip_party_chat.domain.party.dto.PartyDto;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -40,9 +39,6 @@ public class ChatRoomParticipantController {
      */
     @PostMapping("/chat/room/participant")
     @Operation(summary = "채팅방 초대", description = "채팅방에 사용자들을 초대한다.")
-    @ApiResponse(responseCode = "200", description = "채팅방 초대 성공")
-    @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> addParticipantSpecificChatRoom(@RequestBody @Valid ChatRoomRequestDto chatRoomRequestDto) {
         List<Member> members = chatRoomRequestDto.getUsername().stream()
                 .map(username -> customMemberService.loadUserByUsername(username))
@@ -58,9 +54,6 @@ public class ChatRoomParticipantController {
      */
     @DeleteMapping("/chat/room")
     @Operation(summary = "채팅방 나가기", description = "채팅방에서 나간다.")
-    @ApiResponse(responseCode = "200", description = "채팅방 나가기 성공")
-    @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> deleteParticipantSpecificChatRoom(@RequestBody @Valid RemoveParticipant removeParticipant) {
         Member member = memberInfo.getThreadLocalMember();
         chatRoomParticipantService.deleteChatRoomParticipant(member, removeParticipant.roomId());
@@ -72,9 +65,6 @@ public class ChatRoomParticipantController {
      */
     @PostMapping("/chat/room/{partyId}")
     @Operation(summary = "파티참가와 동시에 채팅방 입장", description = "채팅방에 입장한다.")
-    @ApiResponse(responseCode = "200", description = "채팅방 입장 성공")
-    @ApiResponse(responseCode = "400", description = "잘못된 요청")
-    @ApiResponse(responseCode = "401", description = "인증 실패")
     public ResponseEntity<ResponseDto<?>> enterPartyChat(@PathVariable(name = "partyId") Long partyId) {
         chatRoomService.participateInPartyChat(partyId, memberInfo.getThreadLocalMember());
         return ResponseEntity.ok().body(ResponseDto.of("파티 채팅에 입장했습니다.", null));
