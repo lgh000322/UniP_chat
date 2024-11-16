@@ -6,6 +6,7 @@ import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.QChatRoom;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.QChatRoomParticipant;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
+import UniP_server_chat.Unip_party_chat.domain.party.entity.QParty;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import jakarta.persistence.EntityManager;
@@ -17,6 +18,9 @@ import java.util.Optional;
 import static UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.QChatRoom.chatRoom;
 import static UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.QChatRoomParticipant.*;
 import static UniP_server_chat.Unip_party_chat.domain.chatStore.entity.QChatStore.chatStore;
+import static UniP_server_chat.Unip_party_chat.domain.member.entity.QMember.member;
+import static UniP_server_chat.Unip_party_chat.domain.party.entity.QParty.*;
+import static com.querydsl.core.types.ExpressionUtils.count;
 
 @RequiredArgsConstructor
 public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
@@ -25,15 +29,26 @@ public class ChatRoomRepositoryCustomImpl implements ChatRoomRepositoryCustom {
 
     @Override
     public Optional<List<ChatRoomsDto>> findAllChatRoomsByChatStore(ChatStore chatStoreParam) {
+
         List<ChatRoomsDto> result = queryFactory
                 .select(Projections.constructor(ChatRoomsDto.class,
                         chatRoom.id,
-                        chatRoom.title))
+                        chatRoom.title,
+                        party.partyType,
+                        party.startTime,
+                        party.endTime,
+                        member.name,
+                        member.profile_image,
+                        count(chatRoomParticipant.id),
+                        party.partyLimit
+                        ))
                 .from(chatRoom)
+                .leftJoin(party).on(chatRoom.party.id.eq(party.id))
+                .leftJoin(member).on(party.member.id.eq(member.id))
                 .leftJoin(chatRoomParticipant).on(chatRoomParticipant.chatRoom.id.eq(chatRoom.id))
                 .leftJoin(chatStore).on(chatRoomParticipant.chatStore.id.eq(chatStore.id))
-                .where(chatStore.id.eq(chatStoreParam.getId())
-                        .and(chatRoom.isDeleted.eq(false)))
+                .where(chatStore.id.eq(chatStoreParam.getId()).and(chatRoom.isDeleted.eq(false)))
+                .groupBy(chatRoom.id)
                 .fetch();
 
         return Optional.ofNullable(result);

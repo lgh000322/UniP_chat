@@ -27,5 +27,7 @@ public class ChatMessage {
     private UUID roomId;
 
     @Schema(description = "보낸 시간")
+    @Builder.Default
     private LocalDateTime sendTime = LocalDateTime.now();
+
 }
