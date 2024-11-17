@@ -16,6 +16,8 @@ public record ChatRoomsDto(UUID id,
                            String partyChiefName,
                            String partyChiefImageUrl,
                            Long nowCounted,
-                           Long totalCounted) {
+                           Integer totalCounted) {
+
+
 
 }

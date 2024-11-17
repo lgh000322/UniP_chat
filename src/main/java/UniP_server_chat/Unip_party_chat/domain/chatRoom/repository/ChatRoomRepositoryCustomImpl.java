@@ -3,13 +3,9 @@ package UniP_server_chat.Unip_party_chat.domain.chatRoom.repository;
 
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.dto.ChatRoomsDto;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
-import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.QChatRoom;
-import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.QChatRoomParticipant;
 import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
-import UniP_server_chat.Unip_party_chat.domain.party.entity.QParty;
 import com.querydsl.core.types.Projections;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import jakarta.persistence.EntityManager;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;

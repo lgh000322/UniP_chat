@@ -8,6 +8,7 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.Jackson2JsonMessageConverter;
 import org.springframework.amqp.support.converter.MessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -67,6 +68,7 @@ public class RabbitMQConfig {
 
     // 저장 큐
     @Bean
+    @Qualifier(value = "storageQueue")
     public Queue storageQueue() {
         return QueueBuilder.durable("chat.storage.queue")
                 .withArgument("x-queue-mode", "lazy")
@@ -81,6 +83,7 @@ public class RabbitMQConfig {
 
     // 각 서버별 Unique한 브로드캐스트 수신 큐 생성 (서버 이름을 기반으로 큐 이름 설정)
     @Bean
+    @Qualifier(value = "broadcastQueue")
     public Queue broadcastQueue() {
         return QueueBuilder.nonDurable("chat.broadcast." + serverName)  // serverName을 큐 이름에 추가
                 .autoDelete()
@@ -88,7 +91,7 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding broadcastBinding(Queue broadcastQueue, FanoutExchange broadcastExchange) {
+    public Binding broadcastBinding(@Qualifier(value = "broadcastQueue") Queue broadcastQueue, FanoutExchange broadcastExchange) {
         return BindingBuilder.bind(broadcastQueue)
                 .to(broadcastExchange);
     }
