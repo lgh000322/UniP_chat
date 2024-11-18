@@ -35,15 +35,16 @@ public class ChatLogController {
     @Operation(summary = "채팅 전송", description = "특정 채팅방에 채팅을 전송한다.")
     @PostMapping("/topic/room/{roomId}")
     public ResponseEntity<ResponseDto<?>> sendChat(@PathVariable(name = "roomId") UUID roomId, @RequestBody ChatMessage chatMessage) {
+        Member threadLocalMember = memberInfo.getThreadLocalMember();
+
         ChatMessageQueueFormat chatMessageQueueFormat = ChatMessageQueueFormat.builder()
                 .content(chatMessage.getContent())
-                .sender(chatMessage.getSender())
-                .senderOauthName(memberInfo.getThreadLocalMember().getUsername())
+                .sender(threadLocalMember.getName())
+                .senderOauthName(threadLocalMember.getUsername())
                 .roomId(roomId)
                 .build();
 
         messageProducer.sendMessageToServer(chatMessageQueueFormat);//RabbitMQ에 메시지 전송(로드 밸런서가 리버스 프록시로 사용중인 다른 서버에도 요청을 보냄)
-
         messageProducer.sendMessage(chatMessageQueueFormat); // RabbitMQ에 메시지 전송(데이터베이스 저장을 비동기로 수행)
 
         return ResponseEntity.ok().body(ResponseDto.of("메시지 전송 성공", null));

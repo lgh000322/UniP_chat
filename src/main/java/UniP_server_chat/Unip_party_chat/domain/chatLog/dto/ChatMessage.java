@@ -16,10 +16,4 @@ public class ChatMessage {
 
     @Schema(description = "보낼 채팅내용", example = "보내는 채팅 메시지")
     private String content;
-
-    @Schema(description = "보내는 사람의 이름", example = "홍길동")
-    private String sender;
-
-    @Schema(description = "채팅방의 id", example = "12dfsbauifbew-12i3jikbskldf-asidfkhjbawe")
-    private UUID roomId;
 }
