@@ -1,10 +1,12 @@
 package UniP_server_chat.Unip_party_chat.domain.chatLog.controller;
 
+import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastQueueResponse;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessage;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessageQueueFormat;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.service.ChatLogService;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.service.MessageProducer;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
+import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
 import UniP_server_chat.Unip_party_chat.global.memberinfo.MemberInfo;
 import io.swagger.v3.oas.annotations.Operation;
@@ -13,14 +15,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.messaging.handler.annotation.DestinationVariable;
-import org.springframework.messaging.handler.annotation.MessageMapping;
-import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @RestController
@@ -30,12 +26,22 @@ public class ChatLogController {
     private final MessageProducer messageProducer;
     private final ChatLogService chatLogService;
     private final MemberInfo memberInfo;
+    private final CustomMemberService customMemberService;
 
     //메시지 송신은 http로 진행한다.
     @Operation(summary = "채팅 전송", description = "특정 채팅방에 채팅을 전송한다.")
     @PostMapping("/topic/room/{roomId}")
     public ResponseEntity<ResponseDto<?>> sendChat(@PathVariable(name = "roomId") UUID roomId, @RequestBody ChatMessage chatMessage) {
         Member threadLocalMember = memberInfo.getThreadLocalMember();
+
+        ChatLogBroadCastQueueResponse chatLogBroadCastResponse= ChatLogBroadCastQueueResponse.builder()
+                .sender(threadLocalMember.getName())
+                .content(chatMessage.getContent())
+                .roomId(roomId)
+                .senderImageUrl(customMemberService.getImageUrl(threadLocalMember))
+                .build();
+
+        messageProducer.sendMessageToServer(chatLogBroadCastResponse);//RabbitMQ에 메시지 전송(로드 밸런서가 리버스 프록시로 사용중인 다른 서버에도 요청을 보냄)
 
         ChatMessageQueueFormat chatMessageQueueFormat = ChatMessageQueueFormat.builder()
                 .content(chatMessage.getContent())
@@ -44,7 +50,6 @@ public class ChatLogController {
                 .roomId(roomId)
                 .build();
 
-        messageProducer.sendMessageToServer(chatMessageQueueFormat);//RabbitMQ에 메시지 전송(로드 밸런서가 리버스 프록시로 사용중인 다른 서버에도 요청을 보냄)
         messageProducer.sendMessage(chatMessageQueueFormat); // RabbitMQ에 메시지 전송(데이터베이스 저장을 비동기로 수행)
 
         return ResponseEntity.ok().body(ResponseDto.of("메시지 전송 성공", null));
@@ -57,4 +62,5 @@ public class ChatLogController {
 
         return ResponseEntity.ok().body(ResponseDto.of("채팅 기록 조회 성공.", chatLogService.findById(roomId, pageable)));
     }
+
 }

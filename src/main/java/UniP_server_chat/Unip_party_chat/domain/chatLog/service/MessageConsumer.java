@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.domain.chatLog.service;
 
-import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessage;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastQueueResponse;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastResponse;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessageQueueFormat;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.entity.ChatLog;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
@@ -15,7 +16,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -36,9 +36,16 @@ public class MessageConsumer {
 
     // 브로드캐스트 메시지 수신 처리 (STOMP로 클라이언트에게 전달)
     @RabbitListener(queues = "#{broadcastQueue.name}")
-    public void handleBroadcastMessage(ChatMessageQueueFormat message) {
-        String destination = "/topic/room/" + message.getRoomId();
-        messagingTemplate.convertAndSend(destination, message);
+    public void handleBroadcastMessage(ChatLogBroadCastQueueResponse message) {
+        String destination = "/topic/room/" + message.roomId();
+
+        ChatLogBroadCastResponse chatLogBroadCastResponse=ChatLogBroadCastResponse.builder()
+                .sender(message.sender())
+                .content(message.content())
+                .participantImageUrl(message.senderImageUrl())
+                .build();
+
+        messagingTemplate.convertAndSend(destination, chatLogBroadCastResponse);
     }
 
     // Storage 큐의 메시지 배치 처리

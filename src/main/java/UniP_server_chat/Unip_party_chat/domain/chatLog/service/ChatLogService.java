@@ -30,30 +30,15 @@ public class ChatLogService {
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final MemberInfo memberInfo;
 
-    public List<ChatLogResponse> findById(UUID roomId, Pageable pageable) {
+    public List<ChatLogDto> findById(UUID roomId, Pageable pageable) {
         Member member = memberInfo.getThreadLocalMember();
 
         Long startChatLogId = chatRoomParticipantRepository.findChatRoomParticipantByMemberId(member.getId());
 
-        List<ChatLogDto> chatLogDtos = chatLogRepository.findById(roomId, pageable, startChatLogId)
+        return chatLogRepository.findById(roomId, pageable, startChatLogId)
                 .orElseThrow(() -> new CustomException(ChatLogErrorCode.CHAT_LOG_NOT_FOUND));
-
-
-        return chatLogDtos.stream()
-                .map(chatLogDto -> {
-                    return ChatLogResponse.builder()
-                            .content(chatLogDto.content())
-                            .sender(chatLogDto.sender())
-                            .isLeft(isLeft(member, chatLogDto))
-                            .participantImageUrl(chatLogDto.participantImageUrl())
-                            .build();
-                })
-                .collect(Collectors.toList());
     }
 
-    private boolean isLeft(Member member, ChatLogDto chatLogDto) {
-        return member.getName().equals(chatLogDto.sender());
-    }
 
     @Transactional
     public void bulkSave(List<ChatLog> chatLogs) {

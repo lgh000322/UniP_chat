@@ -24,4 +24,10 @@ public class CustomMemberService {
         return member;
     }
 
+    public String getImageUrl(Member member) {
+        return memberRepository.findImageUrlByMemberId(member.getId())
+                .orElseThrow(() -> new CustomException(MemberErrorCode.MEMBER_IMAGE_NOT_FOUND));
+
+    }
+
 }

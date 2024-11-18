@@ -36,6 +36,11 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         if (requestURI.startsWith("/health")) {
             return true;
         }
+
+        if (requestURI.startsWith("/ws")) {
+            return true;
+        }
+
         return super.shouldNotFilter(request);
     }
 

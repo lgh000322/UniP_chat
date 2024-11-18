@@ -11,6 +11,7 @@ import org.springframework.http.HttpStatus;
 public enum MemberErrorCode implements ErrorCode {
     //Todo: 추가해야됨
     MEMBER_NOT_FOUND(HttpStatus.BAD_REQUEST, "유저를 찾을 수 없습니다."),
+    MEMBER_IMAGE_NOT_FOUND(HttpStatus.NOT_FOUND, "유저의 이미지를 찾을 수 없습니다."),
     EX(HttpStatus.BAD_REQUEST,"예시 텍스트");
 
     private HttpStatus httpStatus;
