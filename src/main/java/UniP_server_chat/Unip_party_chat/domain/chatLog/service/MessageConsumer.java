@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.domain.chatLog.service;
 
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessage;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessageQueueFormat;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.entity.ChatLog;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
@@ -35,7 +36,7 @@ public class MessageConsumer {
 
     // 브로드캐스트 메시지 수신 처리 (STOMP로 클라이언트에게 전달)
     @RabbitListener(queues = "#{broadcastQueue.name}")
-    public void handleBroadcastMessage(ChatMessage message) {
+    public void handleBroadcastMessage(ChatMessageQueueFormat message) {
         String destination = "/topic/room/" + message.getRoomId();
         messagingTemplate.convertAndSend(destination, message);
     }
@@ -57,17 +58,17 @@ public class MessageConsumer {
             containerFactory = "batchMessageListenerContainer"
     )
     public void handleStorageMessages(List<Message> messages) {
-        List<ChatMessage> chatMessages = convertAndSortMessage(messages);
+        List<ChatMessageQueueFormat> chatMessages = convertAndSortMessage(messages);
         List<ChatLog> beSavedChatLogs = setBeSavedChatLogs(chatMessages);
         chatLogService.bulkSave(beSavedChatLogs);
     }
 
-    private List<ChatLog> setBeSavedChatLogs(List<ChatMessage> chatMessages) {
+    private List<ChatLog> setBeSavedChatLogs(List<ChatMessageQueueFormat> chatMessages) {
         List<ChatLog> beSavedChatLogs = new ArrayList<>();
 
-        for (ChatMessage chatMessage : chatMessages) {
+        for (ChatMessageQueueFormat chatMessage : chatMessages) {
             ChatRoom chatRoom = chatRoomService.findById(chatMessage.getRoomId());
-            Member member = customMemberService.loadUserByUsername(chatMessage.getSender());
+            Member member = customMemberService.loadUserByUsername(chatMessage.getSenderOauthName());
 
             ChatLog chatLog = ChatLog.builder()
                     .chatRoom(chatRoom)
@@ -80,20 +81,20 @@ public class MessageConsumer {
         return beSavedChatLogs;
     }
 
-    private List<ChatMessage> convertAndSortMessage(List<Message> messages) {
-        List<ChatMessage> chatMessages = messages.stream()
+    private List<ChatMessageQueueFormat> convertAndSortMessage(List<Message> messages) {
+        List<ChatMessageQueueFormat> chatMessages = messages.stream()
                 .map(this::convertToChatMessage)
-                .sorted(Comparator.comparing(ChatMessage::getSendTime))
+                .sorted(Comparator.comparing(ChatMessageQueueFormat::getSendTime))
                 .collect(Collectors.toList());
         return chatMessages;
     }
 
-    private ChatMessage convertToChatMessage(Message message) {
+    private ChatMessageQueueFormat convertToChatMessage(Message message) {
         // 메시지의 바이트 배열을 얻고 이를 ChatMessage 객체로 역직렬화
         try {
             // 메시지의 바이트 배열을 ObjectMapper를 사용해 ChatMessage 객체로 변환
             byte[] body = message.getBody();
-            return objectMapper.readValue(body, ChatMessage.class);
+            return objectMapper.readValue(body, ChatMessageQueueFormat.class);
         } catch (IOException e) {
             // 예외 처리 (디버깅용 로그)
             log.info("메시지 파싱도중 예외가 발생했습니다.");
