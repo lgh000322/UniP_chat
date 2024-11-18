@@ -51,10 +51,9 @@ public class ChatLogController {
 
     @GetMapping("/chat/logs/{roomId}")
     @Operation(summary = "채팅 기록 조회", description = "특정 채팅방의 채팅 기록을 가져온다.")
-    public ResponseEntity<ResponseDto<?>> getChatLogs(@PathVariable(name = "roomId") String roomIdStr,
+    public ResponseEntity<ResponseDto<?>> getChatLogs(@PathVariable(name = "roomId") UUID roomId,
                                                       @PageableDefault Pageable pageable) {
 
-        UUID roomId = UUID.fromString(roomIdStr);
         return ResponseEntity.ok().body(ResponseDto.of("채팅 기록 조회 성공.", chatLogService.findById(roomId, pageable)));
     }
 }

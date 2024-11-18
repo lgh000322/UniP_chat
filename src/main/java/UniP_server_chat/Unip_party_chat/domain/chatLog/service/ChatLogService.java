@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.domain.chatLog.service;
 
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogDto;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogResponse;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.entity.ChatLog;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.repository.ChatLogRepository;
 import UniP_server_chat.Unip_party_chat.domain.chatRoomParticipant.entity.ChatRoomParticipant;
@@ -18,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -28,13 +30,29 @@ public class ChatLogService {
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final MemberInfo memberInfo;
 
-    public List<ChatLogDto> findById(UUID roomId, Pageable pageable) {
+    public List<ChatLogResponse> findById(UUID roomId, Pageable pageable) {
         Member member = memberInfo.getThreadLocalMember();
 
         Long startChatLogId = chatRoomParticipantRepository.findChatRoomParticipantByMemberId(member.getId());
 
-        return chatLogRepository.findById(roomId, pageable,startChatLogId)
+        List<ChatLogDto> chatLogDtos = chatLogRepository.findById(roomId, pageable, startChatLogId)
                 .orElseThrow(() -> new CustomException(ChatLogErrorCode.CHAT_LOG_NOT_FOUND));
+
+
+        return chatLogDtos.stream()
+                .map(chatLogDto -> {
+                    return ChatLogResponse.builder()
+                            .content(chatLogDto.content())
+                            .sender(chatLogDto.sender())
+                            .isLeft(isLeft(member, chatLogDto))
+                            .participantImageUrl(chatLogDto.participantImageUrl())
+                            .build();
+                })
+                .collect(Collectors.toList());
+    }
+
+    private boolean isLeft(Member member, ChatLogDto chatLogDto) {
+        return member.getName().equals(chatLogDto.sender());
     }
 
     @Transactional
