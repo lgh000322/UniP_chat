@@ -49,6 +49,7 @@ public class ChatLogRepositoryCustomImpl implements ChatLogRepositoryCustom {
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .where(chatLog.id.goe(startChatLogId).and(chatRoom.id.eq(roomId)))
+                .orderBy(chatLog.id.desc())
                 .fetch();
 
 

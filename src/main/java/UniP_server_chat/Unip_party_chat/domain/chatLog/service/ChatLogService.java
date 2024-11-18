@@ -33,7 +33,6 @@ public class ChatLogService {
 
         Long startChatLogId = chatRoomParticipantRepository.findChatRoomParticipantByMemberId(member.getId());
 
-
         return chatLogRepository.findById(roomId, pageable,startChatLogId)
                 .orElseThrow(() -> new CustomException(ChatLogErrorCode.CHAT_LOG_NOT_FOUND));
     }
