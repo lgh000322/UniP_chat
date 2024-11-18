@@ -31,13 +31,6 @@ public class ChatLogController {
     private final ChatLogService chatLogService;
     private final MemberInfo memberInfo;
 
-    @SendTo("/topic/room/{roomId}")
-    public ChatMessage sendMessage(@DestinationVariable UUID roomId,
-                                   @Payload ChatMessage chatMessage) {
-        return chatMessage;
-    }
-
-
     //메시지 송신은 http로 진행한다.
     @Operation(summary = "채팅 전송", description = "특정 채팅방에 채팅을 전송한다.")
     @PostMapping("/topic/room/{roomId}")
@@ -58,8 +51,10 @@ public class ChatLogController {
 
     @GetMapping("/chat/logs/{roomId}")
     @Operation(summary = "채팅 기록 조회", description = "특정 채팅방의 채팅 기록을 가져온다.")
-    public ResponseEntity<ResponseDto<?>> getChatLogs(@PathVariable(name = "roomId") UUID roomId,
+    public ResponseEntity<ResponseDto<?>> getChatLogs(@PathVariable(name = "roomId") String roomIdStr,
                                                       @PageableDefault Pageable pageable) {
+
+        UUID roomId = UUID.fromString(roomIdStr);
         return ResponseEntity.ok().body(ResponseDto.of("채팅 기록 조회 성공.", chatLogService.findById(roomId, pageable)));
     }
 }
