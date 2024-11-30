@@ -2,9 +2,7 @@
 캡스톤 프로젝트: 채팅서버
 
 ## 👨‍🏫 시연 영상
-<div align="center">
-  https://github.com/user-attachments/assets/ee9f154f-ede3-4f96-9397-4e7eb865a795
-</div>
+https://github.com/user-attachments/assets/ee9f154f-ede3-4f96-9397-4e7eb865a795
 
 ## ⏲️ 개발 기간 
 - 2024.09.09(월) ~ 2024.11.08(금)
