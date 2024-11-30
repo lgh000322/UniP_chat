@@ -21,7 +21,7 @@
 - **WAS** : Tomcat
 
 ## 📝 ERD
-![캡처](https://github.com/user-attachments/assets/950f7a23-46c6-44cf-a006-b86a27edc70c)
+![erd](https://github.com/user-attachments/assets/577a5f83-4430-4a1c-830e-7a551b1afcad)
 
 
 ## 📌 주요 기능
