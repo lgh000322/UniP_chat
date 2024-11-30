@@ -3,7 +3,7 @@
 
 ## 👨‍🏫 시연 영상
 <div align="center">
-  <img src="https://github.com/user-attachments/assets/ee9f154f-ede3-4f96-9397-4e7eb865a795.gif" alt="시연 영상">
+  https://github.com/user-attachments/assets/ee9f154f-ede3-4f96-9397-4e7eb865a795
 </div>
 
 ## ⏲️ 개발 기간 
