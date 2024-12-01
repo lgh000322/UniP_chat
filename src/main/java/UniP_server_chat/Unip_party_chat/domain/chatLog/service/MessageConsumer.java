@@ -11,11 +11,15 @@ import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberServic
 import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import UniP_server_chat.Unip_party_chat.global.exception.errorCode.ChatLogErrorCode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.rabbitmq.client.Channel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.Message;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
@@ -33,19 +37,24 @@ public class MessageConsumer {
     private final CustomMemberService customMemberService;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatLogService chatLogService;
+    private final RetryTemplate retryTemplate;
 
     // 브로드캐스트 메시지 수신 처리 (STOMP로 클라이언트에게 전달)
-    @RabbitListener(queues = "#{broadcastQueue.name}")
+    @RabbitListener(queues = "#{broadcastQueue.name}", ackMode = "AUTO")
     public void handleBroadcastMessage(ChatLogBroadCastQueueResponse message) {
         String destination = "/topic/room/" + message.roomId();
 
-        ChatLogBroadCastResponse chatLogBroadCastResponse=ChatLogBroadCastResponse.builder()
+        ChatLogBroadCastResponse chatLogBroadCastResponse = ChatLogBroadCastResponse.builder()
                 .sender(message.sender())
                 .content(message.content())
                 .participantImageUrl(message.senderImageUrl())
                 .build();
 
-        messagingTemplate.convertAndSend(destination, chatLogBroadCastResponse);
+        try {
+            messagingTemplate.convertAndSend(destination, chatLogBroadCastResponse);
+        } catch (Exception e) {
+            log.error("메시지 브로드캐스트 실패: " + e.getMessage(), e);
+        }
     }
 
     // Storage 큐의 메시지 배치 처리
@@ -62,12 +71,28 @@ public class MessageConsumer {
 
     @RabbitListener(
             queues = "chat.storage.queue",
-            containerFactory = "batchMessageListenerContainer"
+            containerFactory = "batchMessageListenerContainer",
+            ackMode = "MANUAL"
     )
-    public void handleStorageMessages(List<Message> messages) {
+    public void handleStorageMessages(List<Message> messages,
+                                      Channel channel,
+                                      @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
         List<ChatMessageQueueFormat> chatMessages = convertAndSortMessage(messages);
         List<ChatLog> beSavedChatLogs = setBeSavedChatLogs(chatMessages);
-        chatLogService.bulkSave(beSavedChatLogs);
+
+        try {
+            retryTemplate.execute(context -> {
+                chatLogService.bulkSave(beSavedChatLogs);
+                return null;
+            });
+
+            channel.basicAck(tag, false);
+        } catch (Exception e) {
+            // 로깅 추가 권장
+            log.error("Failed to save chat logs", e);
+            // 메시지를 즉시 Dead Letter Queue로 보냄
+            channel.basicReject(tag, false);
+        }
     }
 
     private List<ChatLog> setBeSavedChatLogs(List<ChatMessageQueueFormat> chatMessages) {
@@ -105,7 +130,6 @@ public class MessageConsumer {
         } catch (IOException e) {
             // 예외 처리 (디버깅용 로그)
             log.info("메시지 파싱도중 예외가 발생했습니다.");
-            e.printStackTrace();
             throw new CustomException(ChatLogErrorCode.CHAT_LOG_MAPPING);
         }
     }

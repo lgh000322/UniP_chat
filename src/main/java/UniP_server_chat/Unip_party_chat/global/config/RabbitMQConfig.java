@@ -36,12 +36,6 @@ public class RabbitMQConfig {
 
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
-        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
-        return rabbitTemplate;
-    }
-
     public ConnectionFactory connectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory();
         connectionFactory.setHost(rabbitmqHost);
@@ -54,6 +48,13 @@ public class RabbitMQConfig {
     @Bean
     public MessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
+    }
+
+    @Bean
+    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+        RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
+        rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
+        return rabbitTemplate;
     }
 
     @Bean
@@ -72,7 +73,29 @@ public class RabbitMQConfig {
     public Queue storageQueue() {
         return QueueBuilder.durable("chat.storage.queue")
                 .withArgument("x-queue-mode", "lazy")
+                .withArgument("x-dead-letter-exchange", "chat.storage.dlx")
+                .withArgument("x-dead-letter-routing-key", "chat.storage.dlq")
                 .build();
+    }
+
+    @Bean
+    @Qualifier(value = "storageDeadLetterQueue")
+    public Queue storageDeadLetterQueue() {
+        return QueueBuilder.durable("chat.storage.dlq")
+                .withArgument("x-queue-mode", "lazy")
+                .build();
+    }
+
+    @Bean
+    public Binding deadLetterBinding(@Qualifier("storageDeadLetterQueue") Queue chatStoreDeadLetterQueue) {
+        return BindingBuilder.bind(chatStoreDeadLetterQueue)
+                .to(storageDeadLetterExchange())
+                .with("chat.storage.dlq");
+    }
+
+    @Bean
+    public DirectExchange storageDeadLetterExchange() {
+        return new DirectExchange("chat.storage.dlx");
     }
 
     // Broadcast Exchange 설정
@@ -85,8 +108,7 @@ public class RabbitMQConfig {
     @Bean
     @Qualifier(value = "broadcastQueue")
     public Queue broadcastQueue() {
-        return QueueBuilder.nonDurable("chat.broadcast." + serverName)  // serverName을 큐 이름에 추가
-                .autoDelete()
+        return QueueBuilder.durable("chat.broadcast." + serverName)  // 서버마다 고유한 큐 이름
                 .build();
     }
 
