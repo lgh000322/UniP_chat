@@ -23,13 +23,13 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
-@Transactional(readOnly = true)
 public class ChatLogService {
     private final ChatLogRepository chatLogRepository;
     private final ChatRoomParticipantRepository chatRoomParticipantRepository;
     private final MemberInfo memberInfo;
     private final MessageProduceUtil messageProduceUtil;
 
+    @Transactional(readOnly = true)
     public List<ChatLogDto> findById(UUID roomId, Pageable pageable) {
         Member member = memberInfo.getThreadLocalMember();
 
@@ -39,15 +39,15 @@ public class ChatLogService {
                 .orElseThrow(() -> new CustomException(ChatLogErrorCode.CHAT_LOG_NOT_FOUND));
     }
 
-    public void produceMessages(UUID roomId, String content) {
-        Member member = memberInfo.getThreadLocalMember();
-        messageProduceUtil.produceSavingMessage(roomId, member, content);
-        messageProduceUtil.produceBroadCastingMessage(roomId, member, content);
-    }
-
     @Transactional
     public void bulkSave(List<ChatLog> chatLogs) {
         chatLogRepository.saveAll(chatLogs);
         chatLogs.clear();
+    }
+
+    public void produceMessages(UUID roomId, String content) {
+        Member member = memberInfo.getThreadLocalMember();
+        messageProduceUtil.produceSavingMessage(roomId, member, content);
+        messageProduceUtil.produceBroadCastingMessage(roomId, member, content);
     }
 }

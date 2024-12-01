@@ -58,7 +58,7 @@ public class JWTCheckFilter extends OncePerRequestFilter {
         jwtUtil.validateToken(accessToken);
 
         try {
-            // accessToken에서 username을 가져온다.
+            // accessToken에서 Member를 가져온다.
             Member member = jwtUtil.getMember(accessToken);
 
             //threadlocal에 username을 저장한다. => threadlocal에 member를 저장한다.
