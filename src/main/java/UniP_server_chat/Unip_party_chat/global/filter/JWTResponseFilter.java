@@ -1,6 +1,7 @@
 package UniP_server_chat.Unip_party_chat.global.filter;
 
 import UniP_server_chat.Unip_party_chat.global.baseResponse.ResponseDto;
+import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
@@ -29,8 +30,11 @@ public class JWTResponseFilter extends OncePerRequestFilter {
         } catch (JwtException e) {
 //            handlerExceptionResolver.resolveException(request, response, null, e);
             sendErrorResponse(HttpStatus.UNAUTHORIZED, response, e);
+        } catch (CustomException e) {
+            sendErrorResponse(e.getErrorCode().getHttpStatus(), response, e);
         }
     }
+
     public void sendErrorResponse(HttpStatus status, HttpServletResponse response, Throwable ex) throws IOException {
         response.setStatus(status.value());
 

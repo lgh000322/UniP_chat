@@ -25,11 +25,11 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 @RequiredArgsConstructor
 public class ChatRoomService {
-
     private final ChatRoomRepository chatRoomRepository;
     private final ChatStoreService chatStoreService;
     private final ChatRoomParticipantService chatRoomParticipantService;
     private final PartyRepository partyRepository;
+
     @Transactional
     public List<ChatRoomsDto> getChatRooms() {
         ChatStore chatStore = chatStoreService.createOrUseChatStore();

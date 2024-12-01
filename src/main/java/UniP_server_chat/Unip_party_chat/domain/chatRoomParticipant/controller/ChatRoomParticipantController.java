@@ -33,7 +33,6 @@ public class ChatRoomParticipantController {
 
     /**
      * 채팅방에 사용자 초대
-     *
      * @param chatRoomRequestDto
      * @return
      */
