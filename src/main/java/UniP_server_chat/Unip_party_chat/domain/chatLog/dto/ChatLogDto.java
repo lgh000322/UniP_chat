@@ -15,5 +15,6 @@ public record ChatLogDto(String sender, String content, String participantImageU
                 .pagingTime(sentTime)
                 .build();
 
+        return chatLogDto;
     }
 }
