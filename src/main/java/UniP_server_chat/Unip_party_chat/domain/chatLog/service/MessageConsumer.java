@@ -4,6 +4,7 @@ import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastQueue
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastResponse;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessageQueueFormat;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.entity.ChatLog;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.entity.ChatLogMongo;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.ChatRoom;
 import UniP_server_chat.Unip_party_chat.domain.chatRoom.service.ChatRoomService;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
@@ -23,6 +24,7 @@ import org.springframework.retry.support.RetryTemplate;
 import org.springframework.stereotype.Component;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -32,9 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 @Slf4j
 public class MessageConsumer {
-    private final ChatRoomService chatRoomService;
     private final ObjectMapper objectMapper;
-    private final CustomMemberService customMemberService;
     private final SimpMessagingTemplate messagingTemplate;
     private final ChatLogService chatLogService;
     private final RetryTemplate retryTemplate;
@@ -57,6 +57,8 @@ public class MessageConsumer {
         }
     }
 
+
+
     // Storage 큐의 메시지 배치 처리
     /**
      *  Todo: 분산된 환경에서 데이터베이스 저장 순서를 맞춰야 한다. + 채팅방마다 분산된 큐를 구독해야한다. 예외 처리도 추가해야 한다.
@@ -78,8 +80,9 @@ public class MessageConsumer {
                                       Channel channel,
                                       @Header(AmqpHeaders.DELIVERY_TAG) long tag) throws IOException {
         List<ChatMessageQueueFormat> chatMessages = convertAndSortMessage(messages);
-        List<ChatLog> beSavedChatLogs = setBeSavedChatLogs(chatMessages);
+        List<ChatLogMongo> beSavedChatLogs = setBeSavedChatLogs(chatMessages);
 
+        // 2초 간격으로 최대 3번까지 재시도 후 DLQ에 넣는다.
         try {
             retryTemplate.execute(context -> {
                 chatLogService.bulkSave(beSavedChatLogs);
@@ -95,20 +98,18 @@ public class MessageConsumer {
         }
     }
 
-    private List<ChatLog> setBeSavedChatLogs(List<ChatMessageQueueFormat> chatMessages) {
-        List<ChatLog> beSavedChatLogs = new ArrayList<>();
+    private List<ChatLogMongo> setBeSavedChatLogs(List<ChatMessageQueueFormat> chatMessages) {
+        List<ChatLogMongo> beSavedChatLogs = new ArrayList<>();
 
         for (ChatMessageQueueFormat chatMessage : chatMessages) {
-            ChatRoom chatRoom = chatRoomService.findById(chatMessage.getRoomId());
-            Member member = customMemberService.loadUserByUsername(chatMessage.getSenderOauthName());
-
-            ChatLog chatLog = ChatLog.builder()
-                    .chatRoom(chatRoom)
-                    .member(member)
+            ChatLogMongo chatLogMongo = ChatLogMongo.builder()
+                    .chatRoomId(chatMessage.getRoomId())
+                    .senderOauthName(chatMessage.getSenderOauthName())
                     .content(chatMessage.getContent())
+                    .sentTime(LocalDateTime.now())
                     .build();
 
-            beSavedChatLogs.add(chatLog);
+            beSavedChatLogs.add(chatLogMongo);
         }
         return beSavedChatLogs;
     }

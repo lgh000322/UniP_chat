@@ -5,6 +5,8 @@ import UniP_server_chat.Unip_party_chat.domain.chatStore.entity.ChatStore;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
@@ -24,6 +26,6 @@ public class ChatRoomParticipant {
     @JoinColumn(name = "chat_store_id")
     private ChatStore chatStore;
 
-    // 해당 사용자가 처음에 들어왔을 때의 마지막 채팅로그 번호 + 1
-    private Long startChatLogId;
+    // 사용자가 들어왔을 때 채팅로그 번호 대신 시간을 사용
+    private LocalDateTime participatedTime;
 }

@@ -1,8 +1,6 @@
 package UniP_server_chat.Unip_party_chat.domain.chatLog.controller;
 
-import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastQueueResponse;
-import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessage;
-import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessageQueueFormat;
+import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.*;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.service.ChatLogService;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.service.MessageProduceUtil;
 import UniP_server_chat.Unip_party_chat.domain.chatLog.service.MessageProducer;
@@ -18,6 +16,8 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @RestController
@@ -37,8 +37,14 @@ public class ChatLogController {
     @GetMapping("/chat/logs/{roomId}")
     @Operation(summary = "채팅 기록 조회", description = "특정 채팅방의 채팅 기록을 가져온다.")
     public ResponseEntity<ResponseDto<?>> getChatLogs(@PathVariable(name = "roomId") UUID roomId,
-                                                      @PageableDefault Pageable pageable) {
-        return ResponseEntity.ok().body(ResponseDto.of("채팅 기록 조회 성공.", chatLogService.findById(roomId, pageable)));
+                                                      @RequestBody(required = false) LocalDateTime participatedTimeInChat,
+                                                      @RequestBody(required = false) LocalDateTime pagingTime) {
+        List<ChatLogDto> chatLogDtos = chatLogService.findById(roomId, participatedTimeInChat, pagingTime);
+        LocalDateTime lastPagingTime = chatLogDtos.get(chatLogDtos.size() - 1).pagingTime();
+
+        ChatLogDtoUsingInPaging chatLogDtoUsingInPaging = ChatLogDtoUsingInPaging.setChatLogDtoUsingInPaging(chatLogDtos, lastPagingTime);
+
+        return ResponseEntity.ok().body(ResponseDto.of("채팅 기록 조회 성공.", chatLogDtoUsingInPaging));
     }
 
 }

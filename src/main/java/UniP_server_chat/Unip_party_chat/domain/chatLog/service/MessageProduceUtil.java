@@ -4,7 +4,10 @@ import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatLogBroadCastQueue
 import UniP_server_chat.Unip_party_chat.domain.chatLog.dto.ChatMessageQueueFormat;
 import UniP_server_chat.Unip_party_chat.domain.member.entity.Member;
 import UniP_server_chat.Unip_party_chat.domain.member.service.CustomMemberService;
+import UniP_server_chat.Unip_party_chat.global.exception.custom.CustomException;
+import UniP_server_chat.Unip_party_chat.global.exception.errorCode.RabbitMQErrorCode;
 import lombok.RequiredArgsConstructor;
+import org.springframework.amqp.AmqpException;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
@@ -23,7 +26,11 @@ public class MessageProduceUtil {
                 .senderImageUrl(customMemberService.getImageUrl(member))
                 .build();
 
-        messageProducer.sendMessageToServer(chatLogBroadCastResponse);//RabbitMQ에 메시지 전송(로드 밸런서가 리버스 프록시로 사용중인 다른 서버에도 요청을 보냄)
+        try {
+            messageProducer.sendMessageToServer(chatLogBroadCastResponse);//RabbitMQ에 메시지 전송(로드 밸런서가 리버스 프록시로 사용중인 다른 서버에도 요청을 보냄)
+        } catch (AmqpException e) {
+            throw new CustomException(RabbitMQErrorCode.CANT_SEND);
+        }
     }
 
     public void produceBroadCastingMessage(UUID roomId, Member member, String content) {
@@ -34,6 +41,10 @@ public class MessageProduceUtil {
                 .roomId(roomId)
                 .build();
 
-        messageProducer.sendMessage(chatMessageQueueFormat); // RabbitMQ에 메시지 전송(데이터베이스 저장을 비동기로 수행)
+        try {
+            messageProducer.sendMessage(chatMessageQueueFormat); // RabbitMQ에 메시지 전송(데이터베이스 저장을 비동기로 수행)
+        } catch (AmqpException e) {
+            throw new CustomException(RabbitMQErrorCode.CANT_SEND);
+        }
     }
 }

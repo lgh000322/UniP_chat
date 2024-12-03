@@ -11,6 +11,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.LockModeType;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static UniP_server_chat.Unip_party_chat.domain.chatRoom.entity.QChatRoom.chatRoom;
@@ -44,15 +45,14 @@ public class ChatRoomParticipantRepositoryCustomImpl implements ChatRoomParticip
     }
 
     @Override
-    public Long findChatRoomParticipantByMemberId(Long memberId) {
-        Long startChatLogId = queryFactory
-                .select(chatRoomParticipant.startChatLogId)
+    public LocalDateTime findParticipatedTimeByMember(Long memberId) {
+
+        return queryFactory
+                .select(chatRoomParticipant.participatedTime)
                 .from(chatRoomParticipant)
                 .leftJoin(chatStore).on(chatRoomParticipant.chatStore.id.eq(chatStore.id))
                 .leftJoin(member).on(chatStore.member.id.eq(member.id))
                 .where(member.id.eq(memberId))
                 .fetchOne();
-
-        return startChatLogId;
     }
 }
